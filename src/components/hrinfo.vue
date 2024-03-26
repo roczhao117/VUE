@@ -4,13 +4,13 @@
     <div style="display: flex; margin: 1px; margin-right: 20px">
       <el-tooltip content="新加员工" placement="top">
         <el-button type="primary" @click="handleNew()"
-          ><el-icon><Plus /></el-icon
-        ></el-button>
+          ><el-icon><Plus /></el-icon>加人</el-button
+        >
       </el-tooltip>
       <el-tooltip content="刷新数据" placement="top">
         <el-button type="primary" @click="listMain()"
-          ><el-icon><Refresh /></el-icon
-        ></el-button>
+          ><el-icon><Refresh /></el-icon>刷新</el-button
+        >
       </el-tooltip>
       <el-input
         placeholder="请输入查找的人名"
@@ -27,21 +27,21 @@
           type="primary"
           style="margin-left: 20px"
           @click="dialogMSVisible = true"
-          ><el-icon><View /></el-icon
-        ></el-button>
+          ><el-icon><View /></el-icon>更多查询</el-button
+        >
       </el-tooltip>
       <el-tooltip content="导出EXCEL" placement="top">
         <el-button type="primary" @click="exportexcel"
-          ><el-icon><Download /></el-icon
-        ></el-button>
+          ><el-icon><Download /></el-icon>导出X</el-button
+        >
       </el-tooltip>
       <el-tooltip content="导入数据" placement="top">
         <el-button
           type="primary"
           @click="importexcel"
           style="margin: 1px; margin-left: 10px"
-          ><el-icon><Upload /></el-icon
-        ></el-button>
+          ><el-icon><Upload /></el-icon>导入X</el-button
+        >
       </el-tooltip>
       <input
         id="inexc"
@@ -49,12 +49,64 @@
         accept="excel2003/xls, excel2007/xlsx"
         style="position: absolute; clip: rect(0 0 0 0)"
         :onchange="fileonchange"
-      />
+      /><el-tooltip content="人事报表" placement="top">
+        <div class="flex flex-wrap items-center">
+          <el-dropdown>
+            <el-button
+              type="primary"
+              icon="Document-copy"
+              style="margin-left: 10px"
+              >报表<el-icon class="el-icon--right"><arrow-down /></el-icon
+            ></el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  v-for="item of diccusrepData"
+                  :key="item.id"
+                  @click="openrep(item)"
+                  >{{ item.itemname }}</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </el-tooltip>
+      <el-tooltip content="报表设计" placement="top">
+        <el-button
+          type="primary"
+          icon="edit"
+          @click="cmd_designrep"
+          style="margin-left: 10px"
+          >报表设计</el-button
+        >
+      </el-tooltip>
     </div>
     <div style="display: flex; margin: 1px; margin-right: 20px">
-      <el-checkbox label="在职员工" v-model="SF.showInstaff"></el-checkbox>
-      <el-checkbox label="社保信息" v-model="SF.showBenefit"></el-checkbox>
-      <el-checkbox label="附加信息" v-model="SF.showOther"></el-checkbox>
+      <el-checkbox
+        label="在职员工"
+        v-model="SF.showInstaff"
+        true-label="1"
+        false-label="0"
+      ></el-checkbox>
+      <el-checkbox
+        label="激活员工"
+        v-model="SF.showIsactive"
+        true-label="1"
+        false-label="0"
+      ></el-checkbox>
+
+      <el-checkbox
+        label="社保信息"
+        v-model="SF.showBenefit"
+        true-label="1"
+        false-label="0"
+      ></el-checkbox>
+      <el-checkbox
+        label="附加信息"
+        v-model="SF.showOther"
+        true-label="1"
+        false-label="0"
+      ></el-checkbox>
     </div>
     <div class="demo-collapse">
       <el-collapse accordion>
@@ -69,9 +121,9 @@
     </div>
     <!-- 人事表格子 -->
     <div style="display: flex; margin-top: 10px; height: 650px">
-      <div style="border-right: 0px solid rgb(239, 239, 239); margin-left: 1px">
+      <div style="border-right: 1px solid rgb(239, 239, 239); margin-left: 1px">
         <el-tree
-          :data="dpData"
+          :data="deptData"
           show-checkbox
           node-key="id"
           ref="deptTree"
@@ -110,6 +162,21 @@
               }}</span>
             </template>
           </el-table-column>
+          <el-table-column prop="comid" fixed="left" label="单位" width="120">
+            <template #default="scope">
+              <el-tag>{{
+                dpList
+                  .dicDescs(scope.row.comid, "dpid", "dpname")
+                  .substring(0, 5)
+              }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="isactive" fixed="left" label="激活" width="60"
+            ><template #default="scope">
+              <el-tag type="success" v-if="scope.row.isactive == 1"> ✔ </el-tag>
+              <el-tag type="danger" v-if="scope.row.isactive == 0">✘</el-tag>
+            </template></el-table-column
+          >
 
           <el-table-column
             prop="emid"
@@ -144,13 +211,24 @@
               <span v-else type="success">女</span>
             </template>
           </el-table-column>
-          <el-table-column prop="mz" label="民族" width="80"></el-table-column>
+          <el-table-column
+            prop="mz"
+            label="民族"
+            width="80"
+            v-if="SF.showOther == '1'"
+          ></el-table-column>
           <el-table-column
             prop="nation"
             label="籍贯"
             width="120"
+            v-if="SF.showOther == '1'"
           ></el-table-column>
-          <el-table-column prop="political" label="政治面貌" width="120">
+          <el-table-column
+            prop="political"
+            label="政治面貌"
+            width="120"
+            v-if="SF.showOther == '1'"
+          >
             <template #default="scope">
               <span>{{
                 dichrpoliticalData.dicDescs(scope.row.political)
@@ -200,18 +278,22 @@
             </template>
           </el-table-column>
 
-          <el-table-column prop="hrstatus" label="状态" width="100">
-            <template #default="scope">
-              <span>{{ dichrstatusData.dicDescs(scope.row.hrstatus) }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="marry" label="婚姻" width="80">
+          <el-table-column
+            prop="marry"
+            label="婚姻"
+            width="80"
+            v-if="SF.showOther == '1'"
+          >
             <template #default="scope">
               <span>{{ dichrmarryData.dicDescs(scope.row.marry) }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="education" label="学历" width="100">
+          <el-table-column
+            prop="education"
+            label="学历"
+            width="100"
+            v-if="SF.showOther == '1'"
+          >
             <template #default="scope">
               <span>{{
                 dichreducationData.dicDescs(scope.row.education)
@@ -222,30 +304,14 @@
             prop="school"
             label="毕业学校"
             width="180"
+            v-if="SF.showOther == '1'"
           ></el-table-column>
           <el-table-column
             prop="speciality"
             label="主修专业"
             width="120"
+            v-if="SF.showOther == '1'"
           ></el-table-column>
-
-          <el-table-column
-            prop="ifcheckout"
-            :formatter="formatisstop"
-            width="120"
-            show-overflow-tooltip
-            label="离职状态"
-          >
-            <template #default="scope">
-              <el-tag v-if="scope.row.ifcheckout == 1" type="danger"
-                >离职</el-tag
-              >
-              <el-tag v-else-if="scope.row.ifcheckout == 0" type="success"
-                >在职</el-tag
-              >
-              <el-tag v-else type="warning">离职申请递交</el-tag>
-            </template>
-          </el-table-column>
           <el-table-column
             prop="reqleavedate"
             label="离职申请日期"
@@ -260,33 +326,118 @@
             prop="bank1"
             label="银行卡号"
             width="180"
+            v-if="SF.showOther == '1'"
           ></el-table-column>
           <el-table-column
             prop="idcard"
             label="身份证号"
             width="180"
+            v-if="SF.showOther == '1'"
           ></el-table-column>
 
           <el-table-column
             prop="mtele"
             label="手机"
             width="120"
+            v-if="SF.showOther == '1'"
           ></el-table-column>
           <el-table-column
             prop="address"
             label="现居住地"
             width="300"
+            v-if="SF.showOther == '1'"
           ></el-table-column>
           <el-table-column
             prop="email"
             label="电子邮箱"
             width="200"
+            v-if="SF.showOther == '1'"
           ></el-table-column>
-          <el-table-column prop="qq" label="QQ" width="120"></el-table-column>
+          <el-table-column
+            prop="qq"
+            label="QQ"
+            width="120"
+            v-if="SF.showOther == '1'"
+          ></el-table-column>
           <el-table-column
             prop="wechat"
             label="微信"
             width="120"
+            v-if="SF.showOther == '1'"
+          ></el-table-column>
+          <el-table-column
+            prop="sb7val"
+            label="养老个人"
+            width="120"
+            v-if="SF.showBenefit == '1'"
+          ></el-table-column>
+          <el-table-column
+            prop="sb0val"
+            label="养老单位"
+            width="120"
+            v-if="SF.showBenefit == '1'"
+          ></el-table-column>
+
+          <el-table-column
+            prop="sb8val"
+            label="医疗个人"
+            width="120"
+            v-if="SF.showBenefit == '1'"
+          ></el-table-column>
+          <el-table-column
+            prop="sb1val"
+            label="医疗单位"
+            width="120"
+            v-if="SF.showBenefit == '1'"
+          ></el-table-column>
+
+          <el-table-column
+            prop="sb9val"
+            label="失业个人"
+            width="120"
+            v-if="SF.showBenefit == '1'"
+          ></el-table-column>
+          <el-table-column
+            prop="sb3val"
+            label="失业单位"
+            width="120"
+            v-if="SF.showBenefit == '1'"
+          ></el-table-column>
+          <el-table-column
+            prop="sb10val"
+            label="公积金个人"
+            width="120"
+            v-if="SF.showBenefit == '1'"
+          ></el-table-column>
+          <el-table-column
+            prop="sb6val"
+            label="公积金单位"
+            width="120"
+            v-if="SF.showBenefit == '1'"
+          ></el-table-column>
+          <el-table-column
+            prop="sb2val"
+            label="大病单位"
+            width="120"
+            v-if="SF.showBenefit == '1'"
+          ></el-table-column>
+          <el-table-column
+            prop="sb4val"
+            label="工伤单位"
+            width="120"
+            v-if="SF.showBenefit == '1'"
+          ></el-table-column>
+          <el-table-column
+            prop="sb5val"
+            label="生育单位"
+            width="120"
+            v-if="SF.showBenefit == '1'"
+          ></el-table-column>
+          <el-table-column
+            prop="sb11val"
+            label="残保金单位"
+            width="120"
+            v-if="SF.showBenefit == '1'"
           ></el-table-column>
 
           <el-table-column prop="id" fixed="right" label="操作" width="120">
@@ -367,23 +518,25 @@
                     >
                     <el-dropdown-item :divided="true"></el-dropdown-item>
                     <el-dropdown-item
-                      icon="el-icon-table-lamp"
+                      icon="moon"
                       @click="cmd_otlist(scope.$index, scope.row)"
                       >加班申请</el-dropdown-item
                     >
                     <el-dropdown-item
-                      icon="el-icon-headset"
+                      icon="headset"
                       @click="cmd_levlist(scope.$index, scope.row)"
                       >假单申请</el-dropdown-item
                     >
                     <el-dropdown-item
-                      icon="el-icon-headset"
+                      icon="ship"
+                      disabled="true"
                       @click="cmd_levlist(scope.$index, scope.row)"
                       >长假申请</el-dropdown-item
                     >
                     <el-dropdown-item :divided="true"></el-dropdown-item>
                     <el-dropdown-item
-                      icon="el-icon-truck"
+                      disabled="true"
+                      icon="list"
                       @click="cmd_expense(scope.$index, scope.row)"
                       >报销申请</el-dropdown-item
                     >
@@ -520,6 +673,7 @@
                     v-model="form.hrstatus"
                     placeholder="请选择"
                     style="width: 100%"
+                    :disabled="true"
                   >
                     <el-option
                       v-for="item in dichrstatusData"
@@ -600,6 +754,7 @@
                   prop="bank1"
                 >
                   <el-input
+                    style="font-size: 12px"
                     size="default"
                     v-model="form.bank1"
                     autocomplete="off"
@@ -622,11 +777,13 @@
               <div>
                 <el-tooltip content="入职前工龄，月份数" placement="bottom">
                   <el-form-item label="前工龄月" :label-width="formLabelWidth">
-                    <el-input
+                    <el-input-number
                       size="default"
                       v-model="form.serveryear"
                       autocomplete="off"
-                    ></el-input> </el-form-item
+                      :min="0"
+                      :max="720"
+                    ></el-input-number> </el-form-item
                 ></el-tooltip>
               </div>
             </el-col>
@@ -676,7 +833,11 @@
             </el-col>
             <el-col :span="6">
               <div>
-                <el-form-item label="考勤卡号" :label-width="formLabelWidth">
+                <el-form-item
+                  label="考勤卡号"
+                  :label-width="formLabelWidth"
+                  prop="workid"
+                >
                   <el-tooltip content="请和工号保持一致！" placement="bottom">
                     <el-input
                       size="default"
@@ -689,7 +850,11 @@
             </el-col>
             <el-col :span="6">
               <div>
-                <el-form-item label="考勤卡编码" :label-width="formLabelWidth">
+                <el-form-item
+                  label="考勤卡编码"
+                  :label-width="formLabelWidth"
+                  prop="cardid"
+                >
                   <el-tooltip
                     content="射频卡背面编号，一般10位以上！"
                     placement="bottom"
@@ -746,6 +911,7 @@
           <el-divider content-position="left">
             <i class="Edit-outline"></i>
           </el-divider>
+
           <el-row :gutter="20">
             <el-col :span="6">
               <div>
@@ -1299,6 +1465,7 @@
                           size="default"
                           v-model="form.sb0"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1314,6 +1481,7 @@
                           size="default"
                           v-model="form.sb1"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1329,6 +1497,7 @@
                           size="default"
                           v-model="form.sb2"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1344,6 +1513,7 @@
                           size="default"
                           v-model="form.sb3"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1359,6 +1529,7 @@
                           size="default"
                           v-model="form.sb4"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1374,6 +1545,7 @@
                           size="default"
                           v-model="form.sb5"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1389,6 +1561,7 @@
                           size="default"
                           v-model="form.sb6"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1404,6 +1577,7 @@
                           size="default"
                           v-model="form.sb11"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1549,6 +1723,7 @@
                           size="default"
                           v-model="form.sb7"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1564,6 +1739,7 @@
                           size="default"
                           v-model="form.sb8"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1580,6 +1756,7 @@
                           size="default"
                           v-model="form.sb9"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1596,6 +1773,7 @@
                           size="default"
                           v-model="form.sb10"
                           autocomplete="off"
+                          @change="sbChange"
                         ></el-input>
                       </el-form-item>
                     </div>
@@ -1697,8 +1875,8 @@
           <el-divider content-position="left">
             <i class="Edit-outline">紧急联系人信息</i>
           </el-divider>
-          <el-row :gutter="20">
-            <el-col :span="6">
+          <el-row :gutter="24">
+            <el-col :span="8">
               <div>
                 <el-form-item
                   label="紧急联系人"
@@ -1713,7 +1891,7 @@
                 </el-form-item>
               </div>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="8">
               <div>
                 <el-form-item label="关系" :label-width="formLabelWidth">
                   <el-input
@@ -1724,7 +1902,7 @@
                 </el-form-item>
               </div>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="8">
               <div>
                 <el-form-item
                   label="联系电话"
@@ -1739,7 +1917,7 @@
                 </el-form-item>
               </div>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="24">
               <div>
                 <el-form-item label="联系地址" :label-width="formLabelWidth">
                   <el-input
@@ -2144,6 +2322,7 @@
               type="primary"
               @click="saveForm"
               v-if="form.ifcheckout != 1 || form.hrstatus != 1"
+              :disabled="dissaveformbtn == true"
               >保 存</el-button
             >
           </span>
@@ -2513,20 +2692,19 @@
               v-if="neworedit == false"
               >新 建</el-button
             >
-
             <el-button
               type="success"
               @click="saveFamilyForm"
               v-if="neworedit == true"
               >新 增</el-button
             >
-            <el-button @click="dialogFamilyVisible = false">取 消</el-button>
             <el-button
               type="primary"
               @click="saveFamilyForm(false)"
               v-if="neworedit == false"
               >保 存</el-button
             >
+            <el-button @click="dialogFamilyVisible = false">离 开</el-button>
           </span>
         </template>
 
@@ -2544,10 +2722,10 @@
             element-loading-background="rgba(0, 0, 0, 0.8)"
             stripe
           >
-            <el-table-column label="激活">
+            <el-table-column label="有效">
               <template #default="scope">
                 <el-tag type="success" v-if="scope.row.isactive == 1">{{
-                  "激活"
+                  "是"
                 }}</el-tag>
 
                 <el-tag type="danger" v-else>{{ "否" }}</el-tag>
@@ -2746,6 +2924,12 @@
         ></moresearch>
       </el-dialog>
     </div>
+    <!--人事报表 -->
+    <div class="dialogform">
+      <el-dialog title="" width="1200px" v-model="dialogRepVisible">
+        <reps :data="repitem" :ischanged="ischanged"></reps>
+      </el-dialog>
+    </div>
   </el-container>
 </template>
 <script>
@@ -2764,14 +2948,18 @@ import otlist from "../components/otlist";
 import levlist from "../components/levlist";
 import receipt from "../components/receipt";
 import moresearch from "../components/moresearch";
+import { hrStatus } from "../utils/comdata.js";
 import $ from "jquery";
+import * as XLSX from "xlsx/xlsx.mjs";
+import reps from "./reps/replst.vue";
 
-import XLSX, { WorkSheet, utils } from "xlsx";
 import {
   useDeptPosStore,
   useDicStore,
   useUserStore,
   useEmidStore,
+  usePermissionStore,
+  useRightStore,
 } from "../store/index";
 
 import {
@@ -2794,9 +2982,12 @@ export default {
     const dicstore = useDicStore();
     const userstore = useUserStore();
     const emidstore = useEmidStore();
-    return { deptstore, dicstore, userstore, emidstore };
+    const pmsStore = usePermissionStore();
+    const rightstore = useRightStore();
+    return { deptstore, dicstore, userstore, emidstore, pmsStore, rightstore };
   },
   components: {
+    reps,
     works,
     education,
     cert,
@@ -2852,6 +3043,7 @@ export default {
       checkoutcheckedData: [],
       checkouttypeData: [],
       checkoutreasonData: [],
+      diccusrepData: [],
 
       hrcheckedshow: [],
       deptChecked: [],
@@ -2870,6 +3062,7 @@ export default {
         },
       ],
 
+      deptData: [],
       dpData: [],
       dpList: [],
       dpProps: {
@@ -2891,6 +3084,8 @@ export default {
 
       cmppwd: "",
 
+      dissaveformbtn: false,
+
       dialogFormVisible: false,
       dialogCheckoutVisible: false,
       dialogFamilyVisible: false,
@@ -2906,6 +3101,8 @@ export default {
       dialogMSVisible: false,
 
       dialogReceiptVisible: false,
+      dialogRepVisible: ref(false),
+      ischanged: 0,
 
       neworedit: true,
 
@@ -2917,10 +3114,18 @@ export default {
         total: ref(1),
       },
 
-      SF: { showInstaff: ref(0), showBenefit: ref(0), showOther: ref(0) },
+      SF: {
+        showInstaff: ref("1"),
+        showBenefit: ref("0"),
+        showOther: ref("0"),
+        showIsactive: ref("1"),
+      },
+      //历史form，为了日志用。
+      histform: {},
       form: {
+        id: "",
         sysid: ref(""),
-        // dpname: "",
+        comid: "",
         dept: "",
         position: "",
 
@@ -2955,7 +3160,7 @@ export default {
 
         school: "",
         speciality: "",
-        serveryear: "0",
+        serveryear: 0,
         joblessdays: "0",
 
         //probation:'',
@@ -3066,6 +3271,15 @@ export default {
       },
       rules: {
         emid: [{ required: true, message: "请输入 工号", trigger: "blur" }],
+
+        cardid: [
+          {
+            required: false,
+            message: "字数和字母组成",
+            pattern: /^[0-9A-Za-z]{5,20}$/,
+            trigger: "blur",
+          },
+        ],
 
         jjname: [
           { required: true, message: "请输入 紧急联系人", trigger: "blur" },
@@ -3362,7 +3576,7 @@ export default {
         consalary: [
           {
             required: true,
-            message: "请输入 合同工资",
+            message: "请输入 合同工资,没有输入0",
             trigger: "blur",
             pattern: /^(0|0(.)?\d+|[1-9]\d*(.)?\d*)$/,
           },
@@ -3370,7 +3584,7 @@ export default {
         currsalary: [
           {
             required: true,
-            message: "请输入 当前工资",
+            message: "请输入 当前工资，没有输入0",
             trigger: "blur",
             pattern: /^(0|0(.)?\d+|[1-9]\d*(.)?\d*)$/,
           },
@@ -3378,15 +3592,15 @@ export default {
         serveryear: [
           {
             required: true,
-            message: "请输入 入职前工龄月份数",
+            message: "请输入 入职前工龄月份数，没有输入0",
             trigger: "blur",
-            pattern: /^(0|(0)([1-9]{1}[0-9]*))$/,
+            pattern: /^(0|([1-9]{1}[0-9]*))$/,
           },
         ],
         housefund: [
           {
             required: true,
-            message: "请输入 公积金基数",
+            message: "请输入 公积金基数，没有输入0",
             trigger: "blur",
             pattern: /^(0|0(.)?\d+|[1-9]\d*(.)?\d*)$/,
           },
@@ -3441,6 +3655,7 @@ export default {
         ],
       },
       familyform: {
+        id: "",
         sysid: "",
         birth: "",
         idcard: "",
@@ -3455,7 +3670,6 @@ export default {
       familyrules: {
         name: [{ required: true, message: "请输入 家属姓名", trigger: "blur" }],
         relation: [{ required: true, message: "请输入 关系", trigger: "blur" }],
-
         mtele: [
           { required: true, message: "请输入 电话号码", trigger: "blur" },
         ],
@@ -3530,14 +3744,23 @@ export default {
       this.form.sb10 = this.form.housefund;
       this.calsbgjj();
     },
+
+    sbChange() {
+      this.calsbgjj();
+    },
+
     regulardateChange() {
       this.form.probato = moment(this.form.regulardate).add(-1, "days");
     },
     healfromChange() {
-      this.form.healto = moment(this.form.healfrom)
-        .add(1, "years")
-        .add(-1, "days")
-        .format("YYYY-MM-DD");
+      if (this.form.healfrom) {
+        this.form.healto = moment(this.form.healfrom)
+          .add(1, "years")
+          .add(-1, "days")
+          .format("YYYY-MM-DD");
+      } else {
+        this.form.healto = "";
+      }
     },
 
     reqleavedateChange() {
@@ -3579,8 +3802,7 @@ export default {
 
     fileonchange(file) {
       let error = false;
-      let j_data = "";
-      //2.如果没有选中文件则取消
+      // 2.如果没有选中文件则取消
       if (!file.target.files) {
         return;
       }
@@ -3589,19 +3811,25 @@ export default {
       //4.初始化新的文件读取对象，浏览器自带，不用导入
       var reader = new FileReader();
       //5.绑定FileReader对象读取文件对象时的触发方法
-      reader.onload = function (e) {
+      reader.onload = (e) => {
         //7.获取文件二进制数据流
         let data = e.currentTarget.result;
         //8.利用XLSX解析二进制文件为xlsx对象
-        let wb = XLSX.read(data, { type: "binary" });
+        const workbook = XLSX.read(data, { type: "binary" });
         //9.利用XLSX把wb第一个sheet转换成JSON对象
         //wb.SheetNames[0]是获取Sheets中第一个Sheet的名字
+        const sheetName = workbook.SheetNames[0];
         //wb.Sheets[Sheet名]获取第一个Sheet的数据
-        j_data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+        const sheet = workbook.Sheets[sheetName];
+
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+        //----------------------------
+        // console.log("excel", sheetName);
         //10.在终端输出查看结果
-        // console.log(j_data)
-        if (j_data) {
-          for (let ele of j_data) {
+        console.log(jsonData);
+
+        if (jsonData) {
+          for (let ele of jsonData) {
             if (!ele.emid) {
               error = true;
               return;
@@ -3622,16 +3850,16 @@ export default {
         });
       } else {
         this.$confirm(
-          "导入将依据系统中存在的人员工号进行数据更新, 是否继续?",
+          "导入将依据系统中存在的人员工号进行数据更新,而且不可逆, 是否继续?",
           "提示",
           {
-            confirmButtonText: "我明白风险，继续导入。",
-            cancelButtonText: "先静静。",
+            confirmButtonText: "我明白风险，继续导入",
+            cancelButtonText: "我先静静",
             type: "warning",
           }
         )
           .then(() => {
-            AX("DELETE", "/family/" + "123").then((res) => {
+            AX("DELETE", "prstaff/" + "123").then((res) => {
               if (res) {
                 //this.listFamily();
               }
@@ -3698,16 +3926,14 @@ export default {
     init_familyform() {
       this.neworedit = true;
       const keyitems = [
-        "sysid",
-        "createdat",
-        "updatedat",
-        "deletedat",
         "id",
         "name",
         "company",
         "mtele",
         "remark",
         "relation",
+        "birth",
+        "idcard",
       ];
 
       for (let item in this.familyform) {
@@ -3724,9 +3950,9 @@ export default {
     },
 
     delfamily(idx, row) {
-      this.$confirm("此操作将永久删除该记录, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+      this.$confirm("此操作将设置其为失效记录,并不能恢复。是否继续?", "提示", {
+        confirmButtonText: "我知道风险，确定将其失效",
+        cancelButtonText: "我再考虑下。",
         type: "warning",
       })
         .then(() => {
@@ -3808,10 +4034,10 @@ export default {
     },
 
     cmd_checkout(idx, row) {
-      this.form = Object.assign({}, row);
+      this.fixForm(row);
       //这里HRSTATUS必须0是在职，1是离职，和ifcheckout 保持一致
       //考虑是未离职的状态
-      console.log("row", row);
+      // console.log("row", row);
       if (row.hrstatus && 0 == parseInt(row.hrstatus)) {
         this.form.reqleavedate = moment().format("YYYY-MM-DD");
         this.form.checkout = moment().format("YYYY-MM-DD");
@@ -3840,21 +4066,39 @@ export default {
     },
     morecommand(cmd) {
       console.log(cmd);
-      //  this.form = Object.assign({}, row);
+      //  fixForm(row);
     },
 
     check() {
       this.deptChecked.splice("0", this.deptChecked.length);
       this.deptChecked = this.$refs.deptTree.getCheckedNodes();
     },
+    /**
+     * 这里非常秒关键在return这里，双return；否则无法返回
+     */
+    findComid(el) {
+      for (let it of this.dpList) {
+        if (it.dpid == el.fid) {
+          if (it.deptlevel != "0") {
+            //下面这个写法尤其重要，否则无法返回迭代的值，而是总是初始值。秒
+            return this.findComid(it);
+          } else {
+            return it;
+          }
+        }
+      }
+    },
 
-    newdeptnodeclick(data) {
-      console.log(data);
+    async newdeptnodeclick(data) {
+      // console.log(data);
       if (data.deptlevel == 2) {
         this.deptVisible = false;
         this.form.dpname = data.deptname;
         this.form.dept = data.fid;
         this.form.position = data.deptid;
+        const comnode = this.findComid(data);
+        this.form.comid = comnode.dpid;
+        await this.getNewEmid(this.form.comid);
       }
     },
     test() {
@@ -3862,13 +4106,15 @@ export default {
       this.deptVisible = !this.deptVisible;
     },
     handleDelete(idx, row) {
-      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+      this.$confirm("该操作将设置其为失效记录,并不能恢复。是否继续?", "提示", {
+        confirmButtonText: "我知道风险，并坚持使其失效。",
+        cancelButtonText: "容我思量下",
         type: "warning",
       })
         .then(() => {
-          AX("DELETE", "/hrinfo/" + row.id).then((res) => {
+          AX("patch", "hrinfo/" + row.id, {
+            isactive: row.isactive == 1 ? 0 : 1,
+          }).then((res) => {
             if (res) {
               this.listMain();
             }
@@ -3882,7 +4128,7 @@ export default {
         });
     },
 
-    savecheckoutForm(ifcheckout = 1) {
+    logCheckout() {
       const checkoutkey = [
         "reqleavedate",
         "checkout",
@@ -3898,13 +4144,36 @@ export default {
         "id",
         "hrstatus",
       ];
+      let saveform = {};
+      let logform = [];
 
-      Object.keys(this.form).forEach((key) => {
-        if (!checkoutkey.includes(key)) {
-          delete this.form[key];
+      // console.log("ddddddddddddddddd", this.histform);
+      Object.keys(this.form).forEach((k) => {
+        if (checkoutkey.includes(k)) {
+          saveform[k] = this.form[k];
+
+          if (this.form[k] != this.histform[k]) {
+            let logobj = {};
+            logobj["item"] = k;
+            logobj["from"] = this.histform[k];
+            logobj["to"] = this.form[k];
+            logobj["opeartor"] =
+              this.userstore.getUser(false).usrname +
+              "_" +
+              this.userstore.getUser(false).tele;
+            logobj["sysid"] = this.form.sysid;
+            logobj["object"] = this.form.emid + "_" + this.form.cname;
+            logobj["type"] = "Hrinfo_Edit";
+            logobj["remark"] = "人事离职/撤销处理";
+            logform.push(logobj);
+          }
         }
       });
 
+      return { saveform, logform };
+    },
+
+    savecheckoutForm(ifcheckout = 1) {
       if (ifcheckout == 0) {
         /**************************************** */
         this.$confirm("此操作将永久清空离职信息, 是否继续?", "提示", {
@@ -3933,17 +4202,30 @@ export default {
             this.form.checkoutreason = "";
             this.form.checkoutremark = "";
 
-            AX("patch", "hrinfo/" + this.form.id, this.form).then((res) => {
+            const log = this.logCheckout();
+            const { saveform, logform } = log;
+
+            //把更改人写入。
+            saveform["updateby"] =
+              this.userstore.getUser(false).usrname +
+              "_" +
+              this.userstore.getUser(false).tele;
+
+            // console.log(saveform, logform);
+
+            AX("patch", "hrinfo/" + this.form.id, saveform).then((res) => {
               if (res) {
-                this.dialogCheckoutVisible = false;
-                this.listMain();
+                AX("post", `loglist`, logform).then((logres) => {
+                  this.dialogCheckoutVisible = false;
+                  this.listMain();
+                });
               }
             });
           })
           .catch(() => {
             this.$message({
               type: "info",
-              message: "撤销完成",
+              message: "撤销失败",
             });
           });
       }
@@ -3962,10 +4244,17 @@ export default {
             // this.form.ifcheckout = ifcheckout;
             this.form.hrstatus = ifcheckout;
 
-            AX("patch", "hrinfo/" + this.form.id, this.form).then((res) => {
+            const log = this.logCheckout();
+            const { saveform, logform } = log;
+
+            // console.log(saveform, logform);
+
+            AX("patch", "hrinfo/" + this.form.id, saveform).then((res) => {
               if (res) {
-                this.dialogCheckoutVisible = false;
-                this.listMain();
+                AX("post", `loglist`, logform).then((logres) => {
+                  this.dialogCheckoutVisible = false;
+                  this.listMain();
+                });
               }
             });
           }
@@ -4013,18 +4302,64 @@ export default {
           this.form.birthmonth = moment(this.form.birth).format("M");
 
           if (!this.neworedit) {
+            /**这一步很重要，只保存改变的值，不改变的值不提交 */
+            let saveform = {};
+            let logform = [];
+            Object.keys(this.form).forEach((k) => {
+              if (this.form[k] != this.histform[k]) {
+                saveform[k] = this.form[k];
+
+                //loginfo 这是日志信息，不需要做成通用的，
+                //因为日志只在主要的地方即可，关键信息即可
+                //大部分关键信息都是来自hrinfo这个模块。
+                let logobj = {};
+                logobj["item"] = k;
+                logobj["from"] = this.histform[k];
+                logobj["to"] = this.form[k];
+                logobj["opeartor"] =
+                  this.userstore.getUser(false).usrname +
+                  "_" +
+                  this.userstore.getUser(false).tele;
+                logobj["sysid"] = this.form.sysid;
+                logobj["object"] = this.form.emid + "_" + this.form.cname;
+                logobj["type"] = "Hrinfo_Edit";
+                logform.push(logobj);
+                //---------------
+              }
+            });
+
+            //如果没有任何修改，那么直接关闭即可，无需刷新数据库
+            // console.log(saveform);
+            if (Object.keys(saveform).length < 1) {
+              this.dialogFormVisible = false;
+              this.listMain();
+            }
+            //把更改人写入。
+            saveform["updateby"] =
+              this.userstore.getUser(false).usrname +
+              "_" +
+              this.userstore.getUser(false).tele;
+            //--------------------------------------------------------------------
             AX(
               "patch",
-              `hrinfo/${this.form.id}`,
-              // Object.assign(this.form, eleobj)
-              this.form
+              `hrinfo/${this.form.id}`, //这里必须用form.id,因为存储的变化中ID从未变，所有不包含再saveform中。
+              saveform
             ).then((res) => {
               if (res) {
-                this.dialogFormVisible = false;
-                this.listMain();
+                AX("post", `loglist`, logform).then((logres) => {
+                  this.dialogFormVisible = false;
+                  this.listMain();
+                });
               }
             });
           } else {
+            this.form["createdby"] =
+              this.userstore.getUser(false).usrname +
+              "_" +
+              this.userstore.getUser(false).tele;
+            this.dissaveformbtn = true;
+            //再新建的时候需要再来一次，这样确保每次数据进去的时候sysid不同
+            this.form.sysid = uuidv4();
             AX("post", "hrinfo", this.form).then((res) => {
               if (res) {
                 this.dialogFormVisible = false;
@@ -4042,9 +4377,7 @@ export default {
             AX("patch", "family/" + this.familyform.id, this.familyform).then(
               (res) => {
                 if (res) {
-                  // this.dialogFormVisible = false;
                   this.listFamily();
-                  this.neworedit = false;
                   this.init_familyform();
                 }
               }
@@ -4052,23 +4385,17 @@ export default {
           } else {
             AX("post", "family", this.familyform).then((res) => {
               if (res) {
-                // this.dialogFamilyVisible = false;
                 this.listFamily();
-
                 this.init_familyform();
-
-                this.neworedit = true;
               }
             });
           }
         }
-        console.log("this.new", this.neworedit);
       });
     },
 
     listFamily() {
       AX("get", "family/" + this.familyform.sysid).then((res) => {
-        console.log(res);
         if (res) {
           this.familyData = res.data;
         }
@@ -4081,6 +4408,7 @@ export default {
     handleNew() {
       this.neworedit = true;
       this.dialogFormVisible = true;
+      this.dissaveformbtn = false;
       // this.getdic();
       Object.keys(this.form).forEach((key) => {
         this.form[key] = "";
@@ -4088,11 +4416,14 @@ export default {
       this.form.updatedat = moment();
       this.form.createdat = moment();
       this.form.updatedby = this.userstore.getUser(false).usrname;
-      this.form.createdatby = this.userstore.getUser(false).usrname;
+      this.form.createdby = this.userstore.getUser(false).usrname;
 
-      // this.form.cname = "55555";
-      // this.form.idcard = "530102197711071555";
+      /**临时测试用的数据 */
+      this.form.cname = "李逍遥";
+      this.form.idcard = "530102198711111555";
+      //----------
 
+      this.form.id = "";
       this.form.ifcheckout = "0";
       this.form.holdays = "0";
       this.form.reqdays = "0";
@@ -4100,6 +4431,7 @@ export default {
       this.form.acclhoursm = "0";
       this.form.sysid = uuidv4();
       this.form.joblessdays = 0;
+      this.form.hrstatus = "0";
 
       //-------------------------------------
 
@@ -4113,6 +4445,8 @@ export default {
       this.form.serveryear = 0;
       this.form.housefund = 0;
       this.form.socialbase = 0;
+      this.form.outhr = 0;
+      this.form.nothr = 0;
       //-----------------------------
       this.form.height = 168;
       this.form.weight = 58;
@@ -4158,20 +4492,42 @@ export default {
       this.form.comid = this.userstore.getUser(false).comid;
 
       this.hrcheckedshow.splice(0, this.hrcheckedshow.length);
+    },
 
-      AX("get", `hrinfo/maxemid/${this.form.comid}`).then((res) => {
+    getNewEmid(comid) {
+      /**
+       * 以后需要改进：
+       * 1：部门必须有工号的区间，比如 10000-12500。
+       * 2：工号长注内存，拿一个，少一个。
+       */
+      AX("get", `hrinfo/maxemid/${comid}`).then((res) => {
         if (res) {
           this.form.emid = res.data.emid;
           this.form.workid = res.data.emid;
         }
       });
     },
+    fixForm(row) {
+      Object.keys(this.form).forEach((key) => {
+        this.form[key] = row[key];
+        this.histform[key] = row[key];
+      });
+    },
+
     handleEdit(index, row) {
       //  this.getdic();
       this.neworedit = false;
       this.dialogFormVisible = true;
+      this.dissaveformbtn = false;
 
-      this.form = Object.assign({}, row);
+      //---------------这里需要把row中非formKEY的删除掉，必须保持按FORM为准-----------------
+      this.fixForm(row);
+      //------------------------------------------------------------------------------
+      /**不能适用下面方式赋值，因为数据库中的字段可能比form的字段多，那么就会造成存储的时候，
+       * 有些是数字字段，或者根本没有赋值，特别是修改以后，再新建数据，这时候form的内容已经变成
+       * 上次修改时候从数据库中调出的值，比如。outhr这些字段，他是历史问题。但啊并不存在现在的form中。
+       */
+      //fixForm(row);
 
       //——————————————————————————————————————————————————————————————————————
       //数字或者boolean 其实都是数字，ui中的任意内容都是字符，所以需要转化
@@ -4186,7 +4542,7 @@ export default {
         this.hrcheckedshow = this.form.hrchecked.split(",");
       }
 
-      console.log(this.dpList);
+      // console.log(this.dpList);
 
       let c = 0;
       let dpname = "";
@@ -4225,11 +4581,16 @@ export default {
         //     // console.log(res.data.dicDescs('hrgrade_13'));
         //   })
         //   .catch((e) => console.log(e.message));
-        this.dichrsbgjjData = this.dicstore.getDic("sbgjj");
-        console.log(this.dichrsbgjjData);
+        this.dichrsbgjjData = this.dicstore.getDic("sbgjj"); // console.log(this.dichrsbgjjData);
 
-        this.dichrgradeData = this.dicstore.getDic("hrgrade");
-        console.log(this.dichrgradeData);
+        // const gdata = this.dicstore.getDic("hrgrade");
+        this.dichrgradeData = this.rightstore.getRightStore("hrgrade");
+        // rdata.map((el, idx) => {
+        //   if (el.type != "hrgrade") {
+        //     delete rdata[idx];
+        //   }
+        // });
+        // console.log("--------------------------------", this.dichrgradeData);
 
         // AX("get", "/dicm/hrtype")
         //   .then((res) => {
@@ -4278,7 +4639,9 @@ export default {
         //     this.dichrstatusData = res.data;
         //   })
         //   .catch((e) => console.log(e.message));
-        this.dichrstatusData = this.dicstore.getDic("hrstatus");
+        // this.dichrstatusData = this.dicstore.getDic("hrstatus");
+
+        this.dichrstatusData.push(...hrStatus);
 
         // AX("get", "/dicm/hrpolitical")
         //   .then((res) => {
@@ -4287,7 +4650,12 @@ export default {
         //   .catch((e) => console.log(e.message));
 
         this.dichrpoliticalData = this.dicstore.getDic("hrpolitical");
-
+        this.diccusrepData = this.dicstore.getDic("cusrep");
+        this.diccusrepData = this.diccusrepData.filter((el) => {
+          if (el.type == "hr") {
+            return el;
+          }
+        });
         // AX("get", "/dicm/1")
         //   .then((res) => {
         //     this.dichrmarryData = res.data;
@@ -4309,6 +4677,8 @@ export default {
         //     this.flattenTree(res.data);
         //   })
         //     .catch((e) => console.log(e.message));
+
+        this.deptData = this.deptstore.deptData.data;
 
         this.dpData = this.deptstore.deptposData.data;
         this.flattenTree(this.dpData);
@@ -4351,13 +4721,13 @@ export default {
       }
       let r = "";
       for (let item of data) {
-        console.log("tree:", val, item[id]);
+        // console.log("tree:", val, item[id]);
         if (val != item[id]) {
           if (item.children) {
             await this.tree(item.children, val, id, descs);
           }
         } else {
-          console.log("find......................." + item[descs]);
+          // console.log("find......................." + item[descs]);
           r = item[descs];
           return item[descs];
           //break;
@@ -4376,6 +4746,7 @@ export default {
         node.fid = item.fid;
         node.is_pos = item.deptlevel == 2 ? true : false;
         node.posgrade = "1";
+        node.deptlevel = item.deptlevel;
 
         this.dpList.push(node);
         if (item.children) {
@@ -4391,7 +4762,7 @@ export default {
       } else {
         this.deptChecked.forEach((item) => {
           let dpobj = {};
-          dpobj.dpid = item.dpid;
+          dpobj.dpid = item.deptid;
           this.dplimit.push(dpobj);
         });
 
@@ -4400,8 +4771,8 @@ export default {
     },
 
     moreSearch(data) {
-      console.log("================================================");
-      console.log(data);
+      // console.log("================================================");
+      // console.log(data);
 
       this.dialogMSVisible = true;
       this.loading = true;
@@ -4413,8 +4784,6 @@ export default {
       AX(
         "get",
         `hrinfo/msf?page=${this.page.cpg}&pagesize=${this.page.limit}&block=${block} `
-        // +"/" +
-        // this.inputsearch
       ).then((res) => {
         this.tableData = res.data;
         this.counts = res.total;
@@ -4429,19 +4798,17 @@ export default {
     },
 
     listMain() {
-      //  console.log('33333333333333')
-
-      //  let api = ''
       if (this.deptChecked.length < 1) {
         this.$message.error("请选择需要查询的部门！");
         return;
       }
-      if (!this.inputsearch) {
-        this.$message.error("请输入需要查找的人名！");
-        return;
-      }
 
-      //   console.log(this.deptChecked)
+      // if (!this.inputsearch) {
+      //   this.$message.error("请输入需要查找的人名！");
+      //   return;
+      // }
+
+      // console.log(this.deptChecked);
       this.loading = true;
       let block = {};
 
@@ -4449,19 +4816,23 @@ export default {
 
       this.deptChecked.forEach((item) => {
         let dpobj = {};
-        dpobj.dpid = item.dpid;
+        dpobj.dpid = item.deptid;
         depts.push(dpobj);
       });
 
       block.dept = depts;
-      //console.log('block', JSON.stringify(block))
+      // console.log("block", JSON.stringify(block));
+
+      block.instaff = this.SF.showInstaff;
+      block.isactive = this.SF.showIsactive;
+      block.name = this.inputsearch;
       block = encodeURI(JSON.stringify(block));
 
       // console.log('blockencodeURI', block.length)
 
       AX(
         "get",
-        `hrinfo/find/${this.inputsearch}?page=${this.page.cpg}&pagesize=${this.page.limit}`
+        `hrinfo/find?page=${this.page.cpg}&pagesize=${this.page.limit}&block=${block}`
         // this.page.limit +
         // "/" +
         // this.page.cpg +
@@ -4470,7 +4841,7 @@ export default {
         // "/" +
         // this.inputsearch
       ).then((res) => {
-        console.log(res);
+        // console.log(res);
         if (res) {
           this.tableData = res.data;
           this.page.total = res.total;
@@ -4483,6 +4854,38 @@ export default {
           this.loading = false;
         }
       });
+    },
+    cmd_designrep() {
+      let file = {
+        //数据源
+        dbs: "hr",
+        //表头
+        title: "人事表",
+        //薪资明细报表
+        repname: "人事报表",
+        //保存时候的权限
+        right: "0",
+        //保存时候的签名
+        signs: [
+          "制表人",
+          "审核人",
+          "人事部",
+          "财务部",
+          "业主代表",
+          "总经理",
+        ].join(","),
+        //一行有几个签名，多个签名的时候，可以控制一行有几个签名，比如默认是3，就是一行3个，一共2行
+        signbyrow: 3,
+        rowheight: 0,
+      };
+      this.ischanged = Math.random() * 100;
+      this.repitem = { file };
+      this.dialogRepVisible = true;
+    },
+    openrep(repitem) {
+      this.ischanged = Math.random() * 100;
+      this.repitem = repitem;
+      this.dialogRepVisible = true;
     },
   },
 };

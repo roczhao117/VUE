@@ -160,14 +160,16 @@ export default {
             pwd: encrypt(this.loginForm.pwd),
           })
             .then(async (res) => {
-              console.log("2222222222222222222222222222222222", res);
+              // console.log("2222222222222222222222222222222222", res);
               if (res.code == 200) {
                 this.$store.commit("setToken", res.token);
                 this.$store.commit("setUser", res.usrid);
                 this.userstore.add2TokenStore(res.token);
 
                 //这里的USERNAME 是电话号码。
-                this.userstore.add2UserStore(this.loginForm.username);
+
+                await this.userstore.add2UserStore(this.loginForm.username);
+                // console.log("username", this.loginForm.username);
 
                 // console.log("**********", this.userstore.userData, res.usrid);
                 let rid = "-1";
@@ -186,8 +188,9 @@ export default {
                   )}`
                 ).then((res) => {
                   if (res) {
+                    // console.log(res);
                     const menudata = [...res.data];
-                    // console.log(menudata[0]);
+                    // console.log("kkkkkkkkkkkkkkkkkkkk", menudata[0]);
                     // this.$router.addRoute("home", {
                     //   path: "/home",
                     //   name: "Home",

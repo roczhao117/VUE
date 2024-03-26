@@ -6,9 +6,9 @@
           <trplan></trplan>
         </el-tab-pane>
         <el-tab-pane label="培训课程">
-          <trplan></trplan>
+          <tritem></tritem>
         </el-tab-pane>
-        <el-tab-pane label="培训记录"> <trplan></trplan></el-tab-pane>
+        <el-tab-pane label="培训记录"> <trstaff></trstaff></el-tab-pane>
       </el-tabs>
     </el-container>
   </div>
@@ -16,6 +16,8 @@
 
 <script>
 import trplan from "../components/trplan.vue";
+import tritem from "../components/tritem.vue";
+import trstaff from "../components/trstaff.vue";
 
 export default {
   data() {
@@ -23,6 +25,6 @@ export default {
       activeTab: "trplan",
     };
   },
-  components: { trplan },
+  components: { trplan, tritem, trstaff },
 };
 </script>

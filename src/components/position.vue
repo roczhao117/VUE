@@ -82,9 +82,6 @@
             <el-button size="default" @click="handleEdit(scope.row)"
               ><el-icon><Edit /></el-icon
             ></el-button>
-            <el-button size="default" @click="handleViewSub(scope.row.itemid)"
-              ><el-icon><Files /></el-icon
-            ></el-button>
           </template>
         </el-table-column>
       </el-table>

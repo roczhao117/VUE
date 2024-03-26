@@ -211,7 +211,7 @@
           <el-button type="primary" @click="saveform" v-if="is_new == false"
             >保 存</el-button
           >
-          <el-button @click="closeform">取 消</el-button>
+          <el-button @click="closeform">离 开</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -244,6 +244,7 @@ export default {
       formLabelWidth: 100,
 
       form: {
+        id: "",
         sysid: ref(""),
         company: "",
         position: "",

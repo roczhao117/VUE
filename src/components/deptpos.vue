@@ -33,7 +33,7 @@
                 @click="handleEdit(data)"
                 ><el-icon><Edit /></el-icon></el-button
             ></el-tooltip>
-            <el-tooltip content="增加子部门"
+            <el-tooltip content="增加子部门" v-if="data.deptlevel != '2'"
               ><el-button size="small" @click="handleNew(data)"
                 ><el-icon><Plus /></el-icon></el-button
             ></el-tooltip>
@@ -286,15 +286,17 @@
 import { AX } from "../utils/api";
 import { v4 as uuidv4 } from "uuid";
 import { ref } from "vue";
-import { useUserStore, useDeptPosStore } from "../store/index";
+import { useUserStore, useDeptPosStore, useDicStore } from "../store/index";
 
 export default {
   setup() {
     const userstore = useUserStore();
     const deptposstore = useDeptPosStore();
+    const dicstore = useDicStore();
     return {
       userstore,
       deptposstore,
+      dicstore,
     };
   },
   data() {
@@ -597,24 +599,41 @@ export default {
     },
 
     getDic() {
-      AX("get", "dic/postype2")
-        .then((res) => {
-          if (res && res.data.length > 0) {
-            this.postypedata = res.data;
-          }
-        })
-        .catch((e) => console.log(e.message));
-
-      AX("get", "dic/hrgrade")
-        .then((res) => {
-          if (res && res.data.length > 0) {
-            this.hrgradedata = res.data;
-          }
-        })
-        .catch((e) => console.log(e.message));
+      // AX("get", "dic/postype2")
+      //   .then((res) => {
+      //     if (res && res.data.length > 0) {
+      //       this.postypedata = res.data;
+      //     }
+      //   })
+      //   .catch((e) => console.log(e.message));
+      // AX("get", "dic/hrgrade")
+      //   .then((res) => {
+      //     if (res && res.data.length > 0) {
+      //       this.hrgradedata = res.data;
+      //     }
+      //   })
+      //   .catch((e) => console.log(e.message));
+      this.postypedata = this.dicstore.getDic("postype2");
+      this.hrgradedata = this.dicstore.getDic("hrgrade");
     },
+
+    updateDept() {
+      const udatastr = JSON.stringify(this.userstore.getUser().data[0]);
+      AX("get", `dept?hookpos=0&user=${udatastr}`).then((e) => {
+        if (e && e.data) {
+          this.deptposstore.add2DeptStore("-1", e.data);
+          this.data = e.data;
+        }
+      });
+      AX("get", `dept?hookpos=1&user=${udatastr}`).then((e) => {
+        if (e && e.data) {
+          this.deptposstore.add2DeptPosStore("-1", e.data);
+        }
+      });
+    },
+
     listMain() {
-      this.data = this.deptposstore.deptposData.data;
+      this.updateDept();
     },
   },
 };

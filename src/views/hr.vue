@@ -1,7 +1,7 @@
 <template>
-  <div style="min-width:100px;">
+  <div style="min-width: 100px">
     <el-container>
-      <el-tabs type="border-card" style="width:100%">
+      <el-tabs type="border-card" style="width: 100%" v-model="activeTab">
         <el-tab-pane label="人事信息" name="HR">
           <hrinfo></hrinfo>
         </el-tab-pane>
@@ -26,19 +26,27 @@
   </div>
 </template>
 
-
 <script>
-import hrinfo from '../components/hrinfo.vue'
-import awardmgr from '../components/awardmgr'
-import contractmgr from '../components/contractmgr'
-import passportmgr from '../components/passportmgr'
-import transformmgr from '../components/transformmgr'
-import receiptmgr from '../components/receiptmgr'
-
+import hrinfo from "../components/hrinfo.vue";
+import awardmgr from "../components/awardmgr";
+import contractmgr from "../components/contractmgr";
+import passportmgr from "../components/passportmgr";
+import transformmgr from "../components/transformmgr";
+import receiptmgr from "../components/receiptmgr";
 
 export default {
-  components: { hrinfo, awardmgr, contractmgr, passportmgr, transformmgr, receiptmgr, },
-}
-
-
+  data() {
+    return {
+      activeTab: "HR",
+    };
+  },
+  components: {
+    hrinfo,
+    awardmgr,
+    contractmgr,
+    passportmgr,
+    transformmgr,
+    receiptmgr,
+  },
+};
 </script>

@@ -39,7 +39,7 @@
         <el-tree
           :data="menuData"
           show-checkbox
-          node-key="id"
+          node-key="mid"
           ref="menuTree"
           :props="menuProps"
           :default-expand-all="true"
@@ -77,7 +77,7 @@
         <el-tree
           :data="dpData"
           show-checkbox
-          node-key="id"
+          node-key="deptid"
           ref="deptTree"
           :props="dpProps"
           :default-expand-all="true"
@@ -93,7 +93,7 @@
         <el-tree
           :data="gradeData"
           show-checkbox
-          node-key="id"
+          node-key="itemid"
           ref="hrgradeTree"
           :props="gradeProps"
           :default-expand-all="true"
@@ -109,7 +109,7 @@
           :data="otherrightData"
           show-checkbox
           ref="otherrightTree"
-          node-key="id"
+          node-key="itemid"
           :props="otherrightProps"
           :default-expand-all="true"
           style="height: 510px"
@@ -124,7 +124,7 @@
           :data="docstatusData"
           show-checkbox
           ref="docstatusTree"
-          node-key="id"
+          node-key="itemid"
           :props="docstatusProps"
           :default-expand-all="true"
           style="height: 510px"
@@ -134,12 +134,12 @@
           >保存</el-button
         >
       </el-tab-pane>
-      <el-tab-pane label="薪资帐套" name="prgrp" style="height: 600px">
+      <el-tab-pane label="薪资帐套" name="pritemgcalgrp" style="height: 600px">
         <el-tree
           :data="prgrpData"
           show-checkbox
           ref="prgrpTree"
-          node-key="id"
+          node-key="itemid"
           :props="prgrpProps"
           :default-expand-all="true"
           style="height: 510px"
@@ -155,17 +155,24 @@
 
 <script>
 import { AX } from "../utils/api";
-import { useDeptPosStore, useUserStore, useMenuStore } from "../store/index";
+import {
+  useDeptPosStore,
+  useUserStore,
+  useMenuStore,
+  useDicStore,
+} from "../store/index";
 import { useFormItemInputId } from "element-plus";
 export default {
   setup() {
     const userstore = useUserStore();
     const deptposstore = useDeptPosStore();
     const menustore = useMenuStore();
+    const dicstore = useDicStore();
     return {
       userstore,
       deptposstore,
       menustore,
+      dicstore,
     };
   },
   data() {
@@ -250,40 +257,63 @@ export default {
         AX("get", "roleright/lst/" + this.roleid + "/-1")
           .then((res) => {
             if (this.activeName == "menu") {
-              this.iniTree(this.menuData);
+              // this.iniTree(this.menuData);
+              this.$refs.menuTree.setCheckedNodes([]);
               res.data.forEach((item) => {
-                this.tree(this.menuData, item);
+                if (item.type == this.activeName) {
+                  this.$refs.menuTree.setChecked(item.aid, true);
+                }
               });
             }
 
             if (this.activeName == "dept") {
-              this.iniTree(this.dpData);
+              // this.iniTree(this.dpData);
+              this.$refs.deptTree.setCheckedNodes([]);
               res.data.forEach((item) => {
-                this.tree(this.dpData, item);
+                if (item.type == this.activeName) {
+                  this.$refs.deptTree.setChecked(item.aid, true);
+                }
               });
             }
             if (this.activeName == "hrgrade") {
-              this.iniTree(this.gradeData);
+              // this.iniTree(this.gradeData);
+              this.$refs.hrgradeTree.setCheckedNodes([]);
               res.data.forEach((item) => {
-                this.tree(this.gradeData, item);
+                // this.tree(this.gradeData, item);
+                if (item.type == this.activeName) {
+                  this.$refs.hrgradeTree.setChecked(item.aid, true);
+                }
               });
             }
             if (this.activeName == "otherright") {
-              this.iniTree(this.otherrightData);
+              // this.iniTree(this.otherrightData);
+              this.$refs.otherrightTree.setCheckedNodes([]);
               res.data.forEach((item) => {
-                this.tree(this.otherrightData, item);
+                // this.tree(this.otherrightData, item);
+                if (item.type == this.activeName) {
+                  this.$refs.otherrightTree.setChecked(item.aid, true);
+                }
               });
             }
             if (this.activeName == "docstatus") {
-              this.iniTree(this.docstatusData);
+              // this.iniTree(this.docstatusData);
+              this.$refs.docstatusTree.setCheckedNodes([]);
               res.data.forEach((item) => {
-                this.tree(this.docstatusData, item);
+                // this.tree(this.docstatusData, item);
+                if (item.type == this.activeName) {
+                  this.$refs.docstatusTree.setChecked(item.aid, true);
+                }
               });
             }
-            if (this.activeName == "prgrp") {
-              this.iniTree(this.prgrpData);
+            if (this.activeName == "pritemgcalgrp") {
+              // this.iniTree(this.prgrpData);
+              this.$refs.prgrpTree.setCheckedNodes([]);
               res.data.forEach((item) => {
-                this.tree(this.prgrpData, item);
+                if (item.type == this.activeName) {
+                  this.$refs.prgrpTree.setChecked(item.aid, true);
+                }
+
+                // this.tree(this.prgrpData, item);
               });
             }
           })
@@ -301,51 +331,57 @@ export default {
          */
 
         if (this.activeName == "menu") {
-          this.$refs.menuTree.setChecked(item.id, false);
+          // this.$refs.menuTree.setChecked(item.id, false);
 
-          // item.has_read = false;
-          // item.has_edit = false;
-          // item.has_delete = false;
-          if (item.children) {
-            this.iniTree(item.children);
-          }
+          // if (item.children) {
+          //   this.iniTree(item.children);
+          // }
+
+          this.$refs.menuTree.setCheckedNodes([]);
         }
 
         if (this.activeName == "dept") {
-          this.$refs.deptTree.setChecked(item.id, false);
-          if (item.children) {
-            this.iniTree(item.children);
-          }
+          // this.$refs.deptTree.setChecked(item.id, false);
+          // if (item.children) {
+          //   this.iniTree(item.children);
+          // }
+          this.$refs.deptTree.setCheckedNodes([]);
         }
 
         if (
-          ["hrgrade", "otherright", "docstatus", "prgrp"].includes(
+          ["hrgrade", "otherright", "docstatus", "pritemgcalgrp"].includes(
             this.activeName
           ) != 0
         ) {
           switch (this.activeName) {
             case "hrgrade": {
-              this.$refs.hrgradeTree.setChecked(item.id, false);
+              // this.$refs.hrgradeTree.setChecked(item.id, false);
+              this.$refs.hrgradeTree.setCheckedNodes([]);
               break;
             }
-
             case "otherright": {
-              this.$refs.otherrightTree.setChecked(item.id, false);
+              this.$refs.otherrightTree.setCheckedNodes([]);
               break;
             }
             case "docstatus": {
-              this.$refs.docstatusTree.setChecked(item.id, false);
+              this.$nextTick(() => {
+                this.$refs.docstatusTree.setCheckedNodes([]);
+              });
+
               break;
             }
-            case "prgrp": {
-              this.$refs.prgrpTree.setChecked(item.id, false);
+            case "pritemgcalgrp": {
+              this.$nextTick(() => {
+                console.log("pritemgcalgrp------------------");
+                this.$refs.prgrpTree.setCheckedNodes([]);
+              });
               break;
             }
           }
 
-          if (item.children) {
-            this.iniTree(item.children);
-          }
+          // if (item.children) {
+          //   this.iniTree(item.children);
+          // }
         }
       });
     },
@@ -375,7 +411,7 @@ export default {
         if (this.activeName == "otherright") {
           itemId = item.itemid;
         }
-        if (this.activeName == "prgrp") {
+        if (this.activeName == "pritemgcalgrp") {
           itemId = item.itemid;
         }
 
@@ -386,9 +422,6 @@ export default {
         } else {
           if (this.activeName == "menu") {
             this.$refs.menuTree.setChecked(item.id, true);
-            // item.has_read = res.has_read;
-            // item.has_edit = res.has_edit;
-            // item.has_delete = res.has_delete;
           }
           if (this.activeName == "dept") {
             this.$refs.deptTree.setChecked(item.id, true);
@@ -402,8 +435,11 @@ export default {
           if (this.activeName == "otherright") {
             this.$refs.otherrightTree.setChecked(item.id, true);
           }
-          if (this.activeName == "prgrp") {
-            this.$refs.prgrpTree.setChecked(item.id, true);
+          if (this.activeName == "pritemgcalgrp") {
+            this.$nextTick(() => {
+              this.$refs.prgrpTree.setChecked(item.id, true);
+              console.log("----set", item.id);
+            });
           }
 
           return;
@@ -435,19 +471,19 @@ export default {
        * admin 不需要分配权限，一个单位只能有一个admin。
        * admin 在选择薪资的时候，需要手动选择账套。
        */
-      this.roleData.forEach((item) => {
-        if (item.rid == this.roleid) {
-          if ("admin" == item.rname.toLowerCase()) {
-            this.isAdmin = true;
-          }
-        }
-      });
-      if (this.isAdmin) {
-        this.$message.error("admin 不需要分配权限，他有所在单位的最高权限！");
-        return true;
-      } else {
-        return false;
-      }
+      // this.roleData.forEach((item) => {
+      //   if (item.rid == this.roleid) {
+      //     if ("admin" == item.rname.toLowerCase()) {
+      //       this.isAdmin = true;
+      //     }
+      //   }
+      // });
+      //   if (this.isAdmin) {
+      //     this.$message.error("admin 不需要分配权限，他有所在单位的最高权限！");
+      //     return true;
+      //   } else {
+      //     return false;
+      //   }
     },
 
     saveMenu() {
@@ -508,8 +544,9 @@ export default {
           lst = this.$refs.docstatusTree.getCheckedNodes();
           break;
         }
-        case "prgrp": {
+        case "pritemgcalgrp": {
           lst = this.$refs.prgrpTree.getCheckedNodes();
+
           break;
         }
       }
@@ -605,34 +642,71 @@ export default {
       //   }
       // });
       this.menuData = this.menustore.menuData.children;
+      this.menuData = [
+        {
+          mid: "0",
+          name: "功能/Function",
+          children: [...this.menuData],
+        },
+      ];
+      // console.log(this.menuData);
       // AX("get", "dept/").then((res) => {
       //   if (res && res.data.length > 0) {
       //     this.dpData = res.data;
       //   }
       // });
 
-      this.dpData = this.deptposstore.deptposData.data;
+      this.dpData = this.deptposstore.deptData.data;
 
-      AX("get", "dic/dicmid/hrgrade").then((res) => {
-        if (res && res.data.length > 0) {
-          this.gradeData = res.data;
-        }
-      });
-      AX("get", "dic/dicmid/docstatus").then((res) => {
-        if (res && res.data.length > 0) {
-          this.docstatusData = res.data;
-        }
-      });
-      AX("get", "dic/dicmid/pritemgcalgrp").then((res) => {
-        if (res && res.data.length > 0) {
-          this.prgrpData = res.data;
-        }
-      });
-      AX("get", "dic/dicmid/otherright").then((res) => {
-        if (res && res.data.length > 0) {
-          this.otherrightData = res.data;
-        }
-      });
+      // AX("get", "dic/dicmid/hrgrade").then((res) => {
+      //   if (res && res.data.length > 0) {
+      //     this.gradeData = res.data;
+      //   }
+      // });
+
+      this.gradeData = this.dicstore.getDic("hrgrade");
+      this.gradeData = [
+        {
+          itemid: "0",
+          itemname: "级别/grade",
+          children: [...this.gradeData],
+        },
+      ];
+
+      // AX("get", "dic/dicmid/docstatus").then((res) => {
+      //   if (res && res.data.length > 0) {
+      //     this.docstatusData = res.data;
+      //   }
+      // });
+      this.docstatusData = this.dicstore.getDic("docstatus");
+      this.docstatusData = [
+        {
+          itemid: "0",
+          itemname: "状态/status",
+          children: [...this.docstatusData],
+        },
+      ];
+
+      // AX("get", "dic/dicmid/pritemgcalgrp").then((res) => {
+      //   if (res && res.data.length > 0) {
+      //     this.prgrpData = res.data;
+      //   }
+      // });
+      this.prgrpData = this.dicstore.getDic("pritemgcalgrp");
+
+      // AX("get", "dic/dicmid/otherright").then((res) => {
+      //   if (res && res.data.length > 0) {
+      //     this.otherrightData = res.data;
+      //   }
+      // });
+      this.otherrightData = this.dicstore.getDic("otherright");
+      this.otherrightData = [
+        {
+          itemid: "0",
+          itemname: "隐私/privacy",
+          children: [...this.otherrightData],
+        },
+      ];
     },
   },
   mounted() {

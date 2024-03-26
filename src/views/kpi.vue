@@ -3,10 +3,13 @@
     <el-container>
       <el-tabs type="border-card" style="width: 100%">
         <el-tab-pane label="绩效成绩" name="kq">
-          <kqinfo></kqinfo>
+          <kpiplan></kpiplan>
         </el-tab-pane>
         <el-tab-pane label="绩效指标">
-          <kqshift></kqshift>
+          <kpiitems></kpiitems>
+        </el-tab-pane>
+        <el-tab-pane label="绩效设置">
+          <kpiset></kpiset>
         </el-tab-pane>
       </el-tabs>
     </el-container>
@@ -14,10 +17,11 @@
 </template>
 
 <script>
-import kqinfo from "../components/kqinfo.vue";
-import kqshift from "../components/kqshift";
+import kpiitems from "../components/kpiitems.vue";
+import kpiplan from "../components/kpiplan.vue";
+import kpiset from "../components/kpiset";
 
 export default {
-  components: { kqinfo, kqshift },
+  components: { kpiitems, kpiset, kpiplan },
 };
 </script>

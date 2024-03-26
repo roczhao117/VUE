@@ -90,7 +90,7 @@ const tree = async (data, res) => {
   });
 };
 const saveMenu = () => {
-  let lst = proxy.$refs.menutree.getCheckedNodes();
+  let lst = proxy.$refs.menutree.getCheckedNodes(false, true);
   let formdata = [];
 
   lst.forEach((val) => {

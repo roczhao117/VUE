@@ -61,7 +61,6 @@
             >
               <el-date-picker
                 v-model="form.fromdate"
-                type="date"
                 placeholder="选择日期"
                 format="YYYY-MM-DD"
                 value-format="YYYY-MM-DD"
@@ -141,7 +140,7 @@
                 style="width: 100%"
               >
                 <el-option
-                  v-for="item in funData"
+                  v-for="item in rfunData"
                   :key="item.itemid"
                   :label="item.itemname"
                   :value="item.itemid"
@@ -271,9 +270,15 @@
               label="备注"
               width="180"
             ></el-table-column>
-            <el-table-column prop="id" fixed="right" label="操作" width="120">
+            <el-table-column fixed="right" label="操作" width="120">
               <template #default="scope">
-                <span class="butgrp" v-if="scope.row.isactive != 0">
+                <span
+                  class="butgrp"
+                  v-if="
+                    scope.row.isactive != 0 &&
+                    rfunIdsData.includes(scope.row.status)
+                  "
+                >
                   <el-button
                     size="small"
                     icon="edit"
@@ -308,7 +313,7 @@
                 layout="prev, pager, next"
                 :page-size="page.limit"
                 @current-change="changePage"
-                :current-page="cp1"
+                :current-page="page.cp1"
                 :total="counts"
               ></el-pagination>
             </div>
@@ -325,10 +330,11 @@
             <el-button type="success" @click="saveform" v-if="is_new == true"
               >新 增</el-button
             >
-            <el-button @click="closeform">取 消</el-button>
+
             <el-button @click="saveform" v-if="is_new == false"
               >保 存</el-button
             >
+            <el-button @click="closeform">离 开</el-button>
           </span>
         </el-col>
       </el-row>
@@ -338,17 +344,20 @@
 <script>
 import { AX } from "../utils/api";
 import { ref } from "vue";
-import { moment } from "moment";
-import { useDicStore, useUserStore } from "../store/index";
+import * as moment from "moment";
+import { useDicStore, useUserStore, useRightStore } from "../store/index";
 import { mealsType } from "../utils/comdata";
+// const moment = require("moment");
 
 export default {
   setup() {
     const dicstore = useDicStore();
     const userstore = useUserStore();
+    const rightstore = useRightStore();
     return {
       dicstore,
       userstore,
+      rightstore,
     };
   },
   props: {
@@ -369,7 +378,11 @@ export default {
 
       typeData: [],
       payData: [],
+
       funData: [],
+      rfunData: [], //
+      rfunIdsData: [],
+
       shifttype2Data: [],
       mealsData: [],
 
@@ -390,6 +403,7 @@ export default {
       counts: 1,
       cp1: 1,
       form: {
+        id: "",
         sysid: ref(""),
         type: "A",
         status: "0",
@@ -403,7 +417,6 @@ export default {
         addmeals: ["-1"],
         isactive: 1,
         sort: 100,
-        is_show: 1,
       },
       rules: {
         type: [{ required: true, message: "请选择 类型", trigger: "blur" }],
@@ -470,31 +483,37 @@ export default {
           this.form[item] = "";
         }
       }
+
       this.form.hours = "2";
       this.form.addmeals = ["-1"];
       this.form.fromdate = this.otfromdate;
       this.form.fromtime = "18:35";
       this.form.type = "A";
-      this.form.status = "0";
+      this.form.status = "";
       this.form.pay = "A";
       this.form.sysid = this.fsysid;
       //--------------------------------------------------
       this.form.isactive = 1;
       this.form.sort = 100;
-      this.form.is_show = 1;
+
+      /**otformdate 是父传入的日期，如果在没有父的情况下，日期默认为当天 */
+      if (!this.otfromdate) {
+        this.form.fromdate = moment().format("YYYY-MM-DD");
+      }
+
       //--------------------------------------------------
     },
 
     closeform() {
-      var formname = "close" + this.selfRouter + "form";
+      var formname = "close" + this.selfRouter + "Form";
 
       this.$emit(formname, false);
     },
 
     delform(idx, row) {
-      this.$confirm("此操作将永久删除该记录, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+      this.$confirm("此操作将永久失效该记录，而且不能恢复, 是否继续?", "提示", {
+        confirmButtonText: "我知道风险，继续",
+        cancelButtonText: "取消并离开",
         type: "warning",
       })
         .then(() => {
@@ -515,18 +534,45 @@ export default {
     },
 
     editform(idx, row) {
-      //  console.log(idx, row);
+      // console.log(idx, row);
       this.is_new = false;
-      this.form = Object.assign({}, row);
+      Object.keys(this.form).forEach((key) => {
+        this.form[key] = row[key];
+      });
+
       this.form.addmeals = row.addmeals.split(",");
     },
 
     saveform() {
       this.$refs.form.validate((valid) => {
+        for (let le of this.formData) {
+          //这里必须加入id!=id的判断，因为如果ID一致的情况下，说明是修改，再新加入数据的时候
+          //form 中的id是空，而formdata中的数据是从数据库中取的数据，这样的数据，id是有值的。
+          //这样才能判断在改条数据是新加入时候不能重复，但修改的时候可以重复。
+          //失效的数据不用管，但在恢复的时候，也要检查。最好的办法是不容许恢复，而且删除掉
+
+          if (
+            le.fromdate == this.form.fromdate &&
+            le.id != this.form.id &&
+            le.isactive == 1
+          ) {
+            this.$message({
+              type: "error",
+              message: "同一天只能输入一条有效的加班记录",
+            });
+            return false;
+          }
+        }
+
         if (valid) {
           if (!this.form.addmeals || this.form.addmeals.length <= 0) {
             this.form.addmeals = ["-1"];
           }
+          //必须把checkbox的值变成字符串进行保存，但是如果不成功的话，需要
+          //把字符串在恢复成数组形式，否则checkbox就用不了。
+          this.form.addmeals = this.form.addmeals.join(",");
+          //-------------------------------------------------
+
           if (!this.is_new) {
             AX("patch", this.selfRouter + "/" + this.form.id, this.form).then(
               (res) => {
@@ -534,6 +580,11 @@ export default {
                   this.dialogFormVisible = false;
                   this.listMain();
                   this.init_form();
+                } else {
+                  //如果保存不成功，需要把原来数组的数据在变回数组，否则是字符串
+                  //字符串的话，checkbox就用不了。
+                  this.form.addmeals = this.form.addmeals.split(",");
+                  //-----------------------
                 }
               }
             );
@@ -545,6 +596,11 @@ export default {
                   this.dialogFormVisible = false;
                   this.listMain();
                   this.init_form();
+                } else {
+                  //如果保存不成功，需要把原来数组的数据在变回数组，否则是字符串
+                  //字符串的话，checkbox就用不了。
+                  this.form.addmeals = this.form.addmeals.split(",");
+                  //---
                 }
               });
             }
@@ -560,6 +616,10 @@ export default {
       this.mealsData.push(...mealsType);
       this.payData = this.dicstore.getDic("otpay");
       this.funData = this.dicstore.getDic("docstatus");
+      this.rfunData = this.rightstore.getRightStore("docstatus", true);
+      this.rfunIdsData = this.rfunData.map((el) => {
+        return el.itemid;
+      });
     },
 
     changePage(idx) {
@@ -572,7 +632,7 @@ export default {
       this.form.fromdate = this.otfromdate;
       this.form.sysid = this.fsysid;
 
-      console.log(this.form.fromdate, this.form.sysid);
+      // console.log(this.form.fromdate, this.form.sysid);
 
       AX(
         "get",

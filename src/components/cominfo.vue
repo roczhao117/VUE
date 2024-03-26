@@ -138,6 +138,7 @@
               placeholder="Pick a Date"
               format="YYYY-MM-DD"
               value-format="YYYY-MM-DD"
+              @change="fromdateChange"
             />
           </el-form-item>
         </el-col>
@@ -180,10 +181,13 @@
       <el-row :gutter="24">
         <el-col :span="24">
           <el-form-item>
+            <el-button @click="newform()" v-if="isAdd == false">
+              新建
+            </el-button>
             <el-button type="primary" @click="saveform">{{
               savenewbtn
             }}</el-button>
-            <el-button>取消</el-button>
+            <el-button @click="close()">取消</el-button>
           </el-form-item>
         </el-col>
       </el-row>
@@ -259,8 +263,9 @@
       </el-form>
       <el-divider content-position="left"><b>该账号角色列表</b></el-divider>
       <el-form-item>
-        <el-table :data="roledata" stripe >
+        <el-table :data="roledata" stripe style="font-size: 12px">
           <el-table-column label="角色/name" prop="rname"></el-table-column>
+          <el-table-column label="描述/Desc" prop="desc"></el-table-column>
           <el-table-column label="激活/Active" prop="isactive"
             ><template #default="scope">
               <el-tag v-if="scope.row.isactive == 1">激活</el-tag>
@@ -302,7 +307,7 @@
       </el-form-item>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogRoleFormVisible = false" type="info"
+          <el-button @click="dialogRoleFormVisible = false" type="primary"
             >离 开</el-button
           >
         </span>
@@ -569,6 +574,7 @@
 import { AX } from "../utils/api";
 import { ref, watchEffect } from "vue";
 import menutemplate from "../components/menutemplate.vue";
+import moment from "moment";
 
 export default {
   components: { menutemplate },
@@ -665,7 +671,6 @@ export default {
           {
             required: true,
             message: "please input databbase host(5-250位)",
-
             trigger: "blur",
             min: 5,
             max: 250,
@@ -674,20 +679,16 @@ export default {
         dbport: [
           {
             required: true,
-            message: "please input databbase port(4-5)",
+            message: "please input database port(4-5位数字)",
             trigger: "blur",
-            min: 4,
-            max: 5,
           },
         ],
         tele: [
           {
             required: true,
             message: "请输入11位电话号码.",
-            partten: /^1[3-9][0-9]9$/,
+            partten: /^1\d{10}$/,
             trigger: "blur",
-            min: 11,
-            max: 11,
           },
         ],
 
@@ -820,9 +821,31 @@ export default {
       this.form.sysmonth = "1";
       this.form.isactive = "1";
       this.form.fid = "0";
+      this.form.svrsdate = "2023-01-01";
+      this.form.svredate = "2024-12-31";
+      this.form.isactive = 1;
+      this.form.dbname = "specicwp";
+      this.form.dbhost = "localhost";
+      this.form.dbport = 5432;
       this.savenewbtn = "创建";
       this.isAdd = true;
     },
+
+    newform() {
+      this.iniForm();
+    },
+
+    close() {
+      this.iniForm();
+    },
+    fromdateChange() {
+      console.log(this.form.svrsdate);
+      this.form.svredate = moment(this.form.svrsdate)
+        .add(1, "year")
+        .add(-1, "day")
+        .format("YYYY-MM-DD");
+    },
+
     iniroleForm() {
       const comid = this.roleform.comid;
       Object.keys(this.roleform).forEach((key) => (this.roleform[key] = ""));
@@ -839,6 +862,18 @@ export default {
           return;
         }
         if (valid) {
+          let reg = new RegExp();
+          reg = /^1[3-9]\d{9}$/;
+          if (!reg.test(this.userform.tele)) {
+            this.$message.error("请输入正确的手机号码！");
+            return;
+          }
+
+          // console.log("我靠过儿");
+          // if (true) {
+          //   return;
+          // }
+
           AX("post", "user", this.userform)
             .then((res) => {
               if (res) {
@@ -897,6 +932,23 @@ export default {
           let updatestr = "roles/";
           let requestType = "post";
 
+          //任何情况下，都不能创建ADMIN名称的用户组
+          if (this.roleform.rname.toLowerCase().trim() == "admin") {
+            this.$message.error("保存错误！不能创建ADMIN名称的用户组！");
+            return;
+          }
+
+          //不能创建同名的用户组
+          for (let el of this.roledata) {
+            if (
+              el.rname.toLowerCase().trim() ==
+              this.roleform.rname.toLowerCase().trim()
+            ) {
+              this.$message.error("保存错误！不能创建同名的用户组！");
+              return;
+            }
+          }
+          //=====================
           if (this.roleform.id) {
             updatestr = "roles/" + this.roleform.id;
             requestType = "patch";
@@ -985,6 +1037,9 @@ export default {
         return;
       } else {
         this.listadmin(data.rid);
+        this.userform.email = "@";
+        this.userform.usrname = "";
+        this.userform.tele = "";
 
         this.dialogPwdFormVisible = true;
         this.userform.usrgrpid = data.rid;

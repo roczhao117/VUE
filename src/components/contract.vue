@@ -181,19 +181,20 @@
         >
           <el-button
             type="success"
-            icon="el-icon-plus"
+            icon="plus"
             @click="init_form"
             v-if="is_new == false"
-            >清 空</el-button
+            >新 建</el-button
           >
 
           <el-button type="success" @click="saveform" v-if="is_new == true"
             >新 增</el-button
           >
-          <el-button @click="closeform">取 消</el-button>
+
           <el-button type="primary" @click="saveform" v-if="is_new == false"
             >保 存</el-button
           >
+          <el-button @click="closeform">离 开</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -231,6 +232,7 @@ export default {
       formLabelWidth: 100,
 
       form: {
+        id: "",
         sysid: ref(""),
         type: "",
         fee: "0",

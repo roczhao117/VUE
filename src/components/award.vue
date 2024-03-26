@@ -160,10 +160,10 @@
             element-loading-background="rgba(0, 0, 0, 0.8)"
             stripe
           >
-            <el-table-column label="激活">
+            <el-table-column label="有效">
               <template #default="scope">
                 <el-tag type="success" v-if="scope.row.isactive == 1">{{
-                  "激活"
+                  "是"
                 }}</el-tag>
 
                 <el-tag type="danger" v-else>{{ "否" }}</el-tag>
@@ -234,7 +234,7 @@
           style="display: flex; justify-content: flex-end; padding-top: 15px"
         >
           <el-button type="success" @click="init_form" v-if="is_new == false"
-            >清空</el-button
+            >新 建</el-button
           >
 
           <el-button type="success" @click="saveform" v-if="is_new == true"
@@ -243,7 +243,7 @@
           <el-button type="primary" @click="saveform" v-if="is_new == false"
             >保 存</el-button
           >
-          <el-button @click="closeform">取 消</el-button>
+          <el-button @click="closeform">离 开</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -282,6 +282,7 @@ export default {
       dialogFormVisible: false,
       formLabelWidth: "100",
       form: {
+        id: "",
         sysid: ref(""),
         type: "",
         item: "",
@@ -290,6 +291,8 @@ export default {
         fromdate: "",
         todate: "",
         remark: "",
+        sort: 101,
+        isactive: 1,
       },
       rules: {
         type: [{ required: true, message: "请选择 类型", trigger: "blur" }],

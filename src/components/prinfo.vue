@@ -2,59 +2,70 @@
   <div>
     <!-- 查询头 -->
 
-    <div style="display: flex; margin: 1px 1px 10px">
-      <el-tag
-        type="success"
-        style="
-          font-size: 18px;
-          padding: 10px;
-          height: 32px;
-          color: rgb(163, 163, 163);
-        "
-        >当前薪资周期: {{ prinfo.period }} 区间 [ {{ prinfo.fromdate }} To
-        {{ prinfo.todate }}]</el-tag
-      >
-      <span style="margin-left: 20px">
-        <el-select
-          v-model="prinfo.prcalgrp"
-          placeholder="薪资帐套选择"
-          style="width: 100%"
-          @change="changeacc"
+    <div style="display: flex">
+      <el-form-item label="">
+        <span style="margin-left: 0px; width: 340px">
+          <el-tag
+            type="success"
+            style="
+              font-size: 16px;
+              padding: 10px;
+              height: 24px;
+
+              color: rgb(163, 163, 163);
+            "
+            >当前薪资周期: {{ prinfo.period }} 区间 [ {{ prinfo.fromdate }} To
+            {{ prinfo.todate }}]</el-tag
+          ></span
         >
-          <el-option
-            v-for="item in dicpraccountgrp"
-            :key="item.itemid"
-            :label="item.itemname"
-            :value="item.itemid"
-          ></el-option>
-        </el-select>
-      </span>
-      <span style="margin-left: 20px">
-        <el-select
-          v-model="prtype"
-          placeholder="薪资员工类型选择"
-          style="width: 100%"
-          @change="changeprtype"
-        >
-          <el-option
-            v-for="item in prtypes"
-            :key="item.itemid"
-            :label="item.itemname"
-            :value="item.itemid"
-          ></el-option>
-        </el-select>
-      </span>
+      </el-form-item>
+      <el-form-item label="">
+        <span style="margin-left: 10px; width: 120px">
+          <el-select
+            v-model="prinfo.prcalgrp"
+            placeholder="薪资帐套选择"
+            style="width: 100%"
+            size="small"
+            @change="changeacc"
+          >
+            <el-option
+              v-for="item in dicpraccountgrp"
+              :key="item.itemid"
+              :label="item.itemname"
+              :value="item.itemid"
+            ></el-option>
+          </el-select>
+        </span>
+      </el-form-item>
+
+      <el-form-item label="">
+        <span style="margin-left: 10px; width: 120px">
+          <el-select
+            v-model="prtype"
+            placeholder="薪资员工类型选择"
+            style="width: 100%"
+            size="small"
+            @change="changeprtype"
+          >
+            <el-option
+              v-for="item in prtypes"
+              :key="item.itemid"
+              :label="item.itemname"
+              :value="item.itemid"
+            ></el-option>
+          </el-select> </span
+      ></el-form-item>
     </div>
     <div style="display: flex; margin: 1px; margin-right: 20px">
       <el-tooltip content="新加员工" placement="top">
-        <el-button type="primary" icon="Plus" @click="handleNew()"></el-button>
+        <el-button type="primary" icon="Plus" @click="handleNew()"
+          >加人</el-button
+        >
       </el-tooltip>
       <el-tooltip content="刷新数据" placement="top">
-        <el-button
-          type="primary"
-          icon="Refresh"
-          @click="listMain()"
-        ></el-button>
+        <el-button type="primary" icon="Refresh" @click="listMain()"
+          >刷新</el-button
+        >
       </el-tooltip>
       <el-input
         placeholder="查询内容"
@@ -66,48 +77,106 @@
           <el-button icon="Search" @click="listMain()">查询</el-button>
         </template>
       </el-input>
-      <el-tooltip content="高级查询" placement="top">
+
+      <input
+        id="inexc"
+        type="file"
+        accept=" application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        style="position: absolute; clip: rect(0 0 0 0)"
+        :onchange="fileonchange"
+      />
+
+      <el-tooltip content="导出EXCEL" placement="top">
+        <el-button type="primary" style="margin-left: 10px" @click="exportClick"
+          ><el-icon><Download /></el-icon>导出X</el-button
+        >
+      </el-tooltip>
+      <el-tooltip content="导入数据" placement="top">
+        <el-button type="primary" @click="importexcel" style="margin-left: 10px"
+          ><el-icon><Upload /></el-icon>导入X
+        </el-button>
+      </el-tooltip>
+
+      <el-tooltip content="批量更新" placement="top">
         <el-button
           type="primary"
-          icon="View"
-          @click="cmd_moresearch"
-          style="margin-left: 20px"
-        ></el-button>
+          icon="CircleCheck"
+          @click="cmd_batchupt()"
+          style="margin-left: 10px"
+          >批量</el-button
+        >
       </el-tooltip>
       <el-tooltip content="计算薪资" placement="top">
         <el-button
           type="primary"
-          icon="Check"
+          icon="CaretRight"
           @click="cmd_calculate()"
-          style="margin-left: 20px"
-        ></el-button>
+          style="margin-left: 10px"
+          >计算</el-button
+        >
       </el-tooltip>
-      <el-tooltip content="薪资过账" placement="top">
+      <el-tooltip content="薪资对比" placement="top">
         <el-button
           type="primary"
-          icon="Document-copy"
+          icon="DocumentChecked"
+          @click="cmd_prcompare()"
+          style="margin-left: 10px"
+          >对比</el-button
+        >
+      </el-tooltip>
+      <el-tooltip content="薪资报表" placement="top">
+        <div class="flex flex-wrap items-center">
+          <el-dropdown>
+            <el-button
+              type="primary"
+              icon="Document-copy"
+              style="margin-left: 10px"
+              >报表<el-icon class="el-icon--right"><arrow-down /></el-icon
+            ></el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  v-for="item of diccusrepData"
+                  :key="item.id"
+                  @click="openrep(item)"
+                  >{{ item.itemname }}</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </el-tooltip>
+      <el-tooltip content="报表设计" placement="top">
+        <el-button
+          type="primary"
+          icon="edit"
+          @click="cmd_designrep"
+          style="margin-left: 10px"
+          >报表设计</el-button
+        >
+      </el-tooltip>
+      <el-tooltip content="薪资过账，不可恢复" placement="top">
+        <el-button
+          type="primary"
+          icon="BottomRight"
           @click="cmd_tohist"
-          style="margin-left: 20px"
-        ></el-button>
+          style="margin-left: 10px"
+          >过账</el-button
+        >
       </el-tooltip>
     </div>
     <!-- 人事表格子 -->
     <div style="display: flex; margin-top: 10px; height: 650px">
       <div style="border-right: 0px solid rgb(239, 239, 239); margin-left: 1px">
         <el-tree
-          :data="dpData"
+          :data="deptData"
           show-checkbox
           node-key="id"
           ref="deptTree"
           :props="dpProps"
           :default-expand-all="true"
           @check="check"
-          style="
-            width: 250px;
-            overflow-x: scroll;
-            height: 715px;
-            font-size: 12px;
-          "
+          style="width: 250px; overflow-x: scroll; height: 715px"
           class="dept"
         >
           <template #default="{ node, data }">
@@ -546,7 +615,7 @@
             v-model="addvalue"
             :data="hrnewData"
             size="small"
-            :titles="['人事库', '薪资库']"
+            :titles="['人事库', '薪资库 [每次10条]']"
             v-loading="loading"
             element-loading-text="拼命加载中"
             element-loading-spinner="loading"
@@ -555,26 +624,391 @@
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button @click="dialogAddVisible = false">取 消</el-button>
-            <el-button type="primary" @click="saveForm">确 定</el-button>
+            <el-button @click="dialogAddVisible = false">离 开</el-button>
+            <el-button
+              type="primary"
+              @click="saveForm"
+              :disabled="addbutdisabled"
+              >确 定</el-button
+            >
           </span>
         </template>
       </el-dialog>
     </div>
+    <!-- 批量更新表单 -->
+    <div>
+      <div class="dialogform">
+        <el-dialog title="导出" width="400px" v-model="dialogFormImpVisible">
+          <el-form ref="refimpform">
+            <el-row :gutter="24">
+              <el-col :span="24">
+                <div>
+                  <el-form-item
+                    label="导个导出模版"
+                    :label-width="formLabelWidth"
+                    prop="prid"
+                  >
+                    <el-button
+                      type="primary"
+                      @click="exportexcel(0)"
+                      :disabled="disimpbtn"
+                      >导 出 模 版</el-button
+                    >
+                  </el-form-item>
+                </div>
+              </el-col>
+              <el-col :span="24">
+                <div>
+                  <el-form-item
+                    label="导出当前月"
+                    :label-width="formLabelWidth"
+                    prop="prid"
+                  >
+                    <el-button
+                      type="primary"
+                      @click="exportexcel(1)"
+                      :disabled="disimpbtn"
+                      >导 出 当 前</el-button
+                    >
+                  </el-form-item>
+                </div>
+              </el-col>
+              <el-divider></el-divider>
+              <el-col :span="24">
+                <div>
+                  <el-form-item
+                    label="历史月份从"
+                    :label-width="formLabelWidth"
+                    prop="histfrom"
+                  >
+                    <el-select
+                      v-model="histfrom"
+                      placeholder="历史月份选择"
+                      style="width: 100%"
+                      @change="histfromChange"
+                    >
+                      <el-option
+                        v-for="item in prhistPeriodData"
+                        :key="item.p"
+                        :label="item.p"
+                        :value="item.p"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
+                </div>
+              </el-col>
+              <el-col :span="24">
+                <div>
+                  <el-form-item
+                    label="历史月份到"
+                    :label-width="formLabelWidth"
+                    prop="histto"
+                  >
+                    <el-select
+                      v-model="histto"
+                      placeholder="历史月份选择"
+                      style="width: 100%"
+                      @change="histtoChange"
+                    >
+                      <el-option
+                        v-for="item in prhistPeriodData"
+                        :key="item.p"
+                        :label="item.p"
+                        :value="item.p"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
+                </div>
+              </el-col>
+            </el-row>
+            <el-button
+              type="primary"
+              @click="exportexcel(2)"
+              :disabled="disimpbtn"
+              >导 出 历 史</el-button
+            >
+            <el-divider></el-divider>
+          </el-form>
+          <template #footer>
+            <span class="dialog-footer">
+              <el-button @click="dialogFormImpVisible = false">离 开</el-button>
+            </span>
+          </template>
+        </el-dialog>
+      </div>
+      <el-dialog
+        title="批 量 更 新"
+        width="400px"
+        v-model="dialogBatchUptVisible"
+      >
+        <el-form
+          :rules="batchformrules"
+          :model="batchform"
+          ref="refbatchform"
+          class="margin:0 20px;display:flex;"
+        >
+          <el-select
+            id="pid"
+            v-model="batchform.pid"
+            placeholder="请选择项目"
+            size="small"
+            style="width: 100%; margin: 10px 0"
+          >
+            <el-option
+              v-for="pritem in pritemData0"
+              :key="pritem.prid"
+              :value="pritem.prid"
+              :label="pritem.prname"
+            ></el-option>
+          </el-select>
+
+          <el-select
+            id="symbol"
+            v-model="batchform.symbol"
+            placeholder="请选择符号"
+            size="small"
+            style="width: 100%; margin: 10px 0"
+          >
+            <el-option
+              v-for="it in optsData"
+              :key="it.itemid"
+              :value="it.itemid"
+              :label="it.itemname"
+            ></el-option>
+          </el-select>
+
+          <el-input
+            v-model="batchform.val"
+            placeholder="请输入批量值"
+          ></el-input>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="dialogBatchUptVisible = false">离 开</el-button>
+            <el-button
+              type="primary"
+              @click="batchUpdate"
+              :disabled="addbutdisabled"
+              >更 新</el-button
+            >
+          </span>
+        </template>
+      </el-dialog>
+    </div>
+    <!-- 薪资对比 -->
+    <div>
+      <div class="dialogform">
+        <el-dialog title="薪资对比" width="400px" v-model="dialogCompVisible">
+          <el-form :model="compform" ref="refcompform">
+            <el-row :gutter="24">
+              <el-col :span="24">
+                <div>
+                  <el-form-item
+                    label="当前对比上期"
+                    :label-width="formLabelWidth"
+                  >
+                    <el-button
+                      type="primary"
+                      @click="prCompare(1)"
+                      :disabled="disimpbtn"
+                      >对比上期</el-button
+                    >
+                  </el-form-item>
+                </div>
+              </el-col>
+
+              <el-col :span="24">
+                <div>
+                  <el-form-item
+                    label="对比去年同期"
+                    :label-width="formLabelWidth"
+                  >
+                    <el-button
+                      type="primary"
+                      @click="prCompare(2)"
+                      :disabled="disimpbtn"
+                      >当前对比去年同期</el-button
+                    >
+                  </el-form-item>
+                </div>
+              </el-col>
+              <el-divider>当前对比任意历史</el-divider>
+              <el-col :span="24">
+                <div>
+                  <el-form-item label="历史月份" :label-width="formLabelWidth">
+                    <el-select
+                      v-model="compform.cushist"
+                      placeholder="历史月份选择"
+                      style="width: 100%"
+                    >
+                      <el-option
+                        v-for="item in prhistPeriodData"
+                        :key="item.p"
+                        :label="item.p"
+                        :value="item.p"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
+                </div>
+              </el-col>
+
+              <el-col :span="24">
+                <div>
+                  <el-form-item label="对比历史" :label-width="formLabelWidth">
+                    <el-button
+                      type="primary"
+                      @click="prCompare(3)"
+                      :disabled="disimpbtn"
+                      >对比历史</el-button
+                    >
+                  </el-form-item>
+                </div>
+              </el-col>
+              <el-divider>历史对比历史</el-divider>
+              <el-col :span="24">
+                <div>
+                  <el-form-item
+                    label="历史月份从"
+                    :label-width="formLabelWidth"
+                  >
+                    <el-select
+                      v-model="compform.histfrom"
+                      placeholder="历史月份选择"
+                      style="width: 100%"
+                      @change="histfromChange"
+                    >
+                      <el-option
+                        v-for="item in prhistPeriodData"
+                        :key="item.p"
+                        :label="item.p"
+                        :value="item.p"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
+                </div>
+              </el-col>
+              <el-col :span="24">
+                <div>
+                  <el-form-item
+                    label="历史月份到"
+                    :label-width="formLabelWidth"
+                  >
+                    <el-select
+                      v-model="compform.histto"
+                      placeholder="历史月份选择"
+                      style="width: 100%"
+                      @change="histtoChange"
+                    >
+                      <el-option
+                        v-for="item in prhistPeriodData"
+                        :key="item.p"
+                        :label="item.p"
+                        :value="item.p"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
+                </div>
+              </el-col>
+            </el-row>
+            <el-button
+              type="primary"
+              @click="prCompare(4)"
+              :disabled="disimpbtn"
+              >历史对比</el-button
+            >
+            <el-divider></el-divider>
+          </el-form>
+          <template #footer>
+            <span class="dialog-footer">
+              <el-button @click="dialogCompVisible = false">离 开</el-button>
+            </span>
+          </template>
+        </el-dialog>
+      </div>
+      <el-dialog
+        title="批 量 更 新"
+        width="400px"
+        v-model="dialogBatchUptVisible"
+      >
+        <el-form
+          :rules="batchformrules"
+          :model="batchform"
+          ref="refbatchform"
+          class="margin:0 20px;display:flex;"
+        >
+          <el-select
+            id="pid"
+            v-model="batchform.pid"
+            placeholder="请选择项目"
+            size="small"
+            style="width: 100%; margin: 10px 0"
+          >
+            <el-option
+              v-for="pritem in pritemData0"
+              :key="pritem.prid"
+              :value="pritem.prid"
+              :label="pritem.prname"
+            ></el-option>
+          </el-select>
+
+          <el-select
+            id="symbol"
+            v-model="batchform.symbol"
+            placeholder="请选择符号"
+            size="small"
+            style="width: 100%; margin: 10px 0"
+          >
+            <el-option
+              v-for="it in optsData"
+              :key="it.itemid"
+              :value="it.itemid"
+              :label="it.itemname"
+            ></el-option>
+          </el-select>
+
+          <el-input
+            v-model="batchform.val"
+            placeholder="请输入批量值"
+          ></el-input>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="dialogBatchUptVisible = false">离 开</el-button>
+            <el-button
+              type="primary"
+              @click="batchUpdate"
+              :disabled="addbutdisabled"
+              >更 新</el-button
+            >
+          </span>
+        </template>
+      </el-dialog>
+    </div>
+    <!-- 薪资报表 -->
+    <el-dialog title="" width="1200px" v-model="dialogRepVisible">
+      <reps :data="repitem" :ischanged="ischanged"></reps>
+    </el-dialog>
   </div>
 </template>
 <script>
 import { AX } from "../utils/api";
-import { ref } from "vue";
-import moment from "moment";
+import { ref, provide, watch } from "vue";
+import * as moment from "moment";
+import { opeartorSymbol, chkMoney } from "../utils/comdata";
+import * as XLSX from "xlsx/xlsx.mjs";
 import $ from "jquery";
+import reps from "./reps/replst.vue";
+// import { hiPrintPlugin } from "vue-plugin-hiprint";
+
+const iconv = require("iconv-lite");
 import {
   useDeptPosStore,
   useDicStore,
   useUserStore,
   useEmidStore,
+  useRightStore,
 } from "../store/index";
-import { chkMoney } from "../utils/comdata";
+import { duration } from "vue-moment";
 
 export default {
   setup() {
@@ -582,26 +1016,51 @@ export default {
     const dicstore = useDicStore();
     const userstore = useUserStore();
     const emidstore = useEmidStore();
-    return { deptstore, dicstore, userstore, emidstore };
+    const rightstore = useRightStore();
+    provide("clkrep", "1111111");
+    return { deptstore, dicstore, userstore, emidstore, rightstore };
   },
+  components: { reps },
   data() {
     return {
       dplimit: [],
       fsysid: "123",
+      error: false,
       hrData: {},
+      canRun: true,
+      //y---
+      refresh: true,
+      repitem: {},
+      ischanged: ref(0),
 
       loadingContent: "拼命加载中",
       loadingBackground: "rgba(0, 0, 0, 0.8)",
+
+      histfrom: "",
+      histto: "",
 
       tableData: [],
       roleData: [],
       familyData: [],
 
       pritemData: [],
+      pritemData0: [],
       pritemDataShow: [],
+
+      pritems_ids_0: [],
+      pritems_ids_not0: [],
+
+      compareData: [],
+      dialogCompDataVisible: false,
+
+      optsData: [],
 
       loading: false,
       deptVisible: false,
+
+      dialogFormImpVisible: false,
+      dialogCompVisible: false,
+      disimpbtn: false,
 
       dichrgradeData: [],
       dichrtypeData: [],
@@ -612,6 +1071,7 @@ export default {
       dichrsurData: [],
       diccerttypeData: [],
       dichrpropsData: [],
+      diccusrepData: [],
 
       dichrpoliticalData: [],
       dichrcheckedData: [],
@@ -623,12 +1083,16 @@ export default {
       hrcheckedshow: [],
       deptChecked: [],
 
+      addbutdisabled: false,
+
       dichktypeData: [],
 
       hrnewData: [],
       addvalue: [],
       dicpraccountgrp: [],
+      prhistPeriodData: [],
 
+      deptData: [],
       dpData: [],
       dpList: [],
       dpProps: {
@@ -641,6 +1105,12 @@ export default {
       counts: 1,
       cp1: 1,
       formLabelWidth: "120",
+
+      compform: {
+        cushist: "",
+        histfrom: "",
+        histto: "",
+      },
 
       prinfo: {
         period: "202101",
@@ -674,10 +1144,19 @@ export default {
 
       dialogAddVisible: false,
 
+      dialogBatchUptVisible: false,
+      dialogRepVisible: ref(false),
+
       neworedit: true,
 
+      batchform: {
+        pid: "",
+        val: 0,
+        symbol: "=",
+      },
+
       page: {
-        limit: 15,
+        limit: 10,
         cpg: 1,
         counts: 1,
       },
@@ -1237,28 +1716,400 @@ export default {
     changeacc() {
       //   this.listMain();
     },
+    cmd_designrep() {
+      let file = {
+        //数据源
+        dbs: "pr",
+        //表头
+        title: "薪资表",
+        //薪资明细报表
+        repname: "薪资报表",
+        //保存时候的权限
+        right: "0",
+        //保存时候的签名
+        signs: [
+          "制表人",
+          "审核人",
+          "人事部",
+          "财务部",
+          "业主代表",
+          "总经理",
+        ].join(","),
+        //一行有几个签名，多个签名的时候，可以控制一行有几个签名，比如默认是3，就是一行3个，一共2行
+        signbyrow: 3,
+        rowheight: 0,
+      };
+      this.ischanged = Math.random() * 100;
+      this.repitem = { file };
+      this.dialogRepVisible = true;
+    },
+    openrep(repitem) {
+      this.ischanged = Math.random() * 100;
+      this.repitem = repitem;
+      this.dialogRepVisible = true;
+    },
+    print() {
+      this.print({
+        template: "<h1>hello,hiprint!</h1></h1>",
+        style: `
+        h1{
+          color:red;
+          width: '100%';
+          height: '100%';
+        }`,
+      });
+    },
+    cmd_prcompare() {
+      this.disimpbtn = false;
+      this.dialogCompVisible = true;
+      this.getPrhistPeriod();
+    },
+    prCompare(type = 1) {
+      if (!this.checkTableData()) {
+        return;
+      }
 
+      this.disimpbtn = false;
+      let data = {};
+      data.calgrp = this.prinfo.prcalgrp;
+      data.period = this.prinfo.period;
+      data.type = type;
+
+      if (type == 3) {
+        data.cushist = this.compform.cushist;
+        if (!this.compform.cushist) {
+          this.$message.error("请选择历史月份，否则无法比较！");
+          return;
+        }
+      }
+      if (type == 4) {
+        data.histfrom = this.compform.histfrom;
+        data.histto = this.compform.histto;
+        if (!this.compform.histfrom || !this.compform.histto) {
+          this.$message.error("请选择历史月份的开始和结束，否则无法比较！");
+          return;
+        }
+      }
+      // console.log(this.dpData);
+      AX("post", `prstaff/prcompare`, data).then((res) => {
+        //这里需要把sysid这种类型的字段删除掉
+        res.data.forEach((ele) => {
+          delete ele.sysid;
+
+          this.dpList.forEach((d) => {
+            if (ele.dept == d.dpid) {
+              ele.dept = d.dpname;
+            }
+            if (ele.position == d.dpid) {
+              ele.position = d.dpname;
+            }
+          });
+
+          //------------
+          if (ele["period_0"] && !ele["period_1"]) {
+            ele.type = "+";
+          }
+          if (!ele["period_0"] && ele["period_1"]) {
+            ele.type = "-";
+          }
+        });
+
+        this.compareData = res.data;
+
+        this.exportcompexcel(res.data);
+        this.dialogCompDataVisible = true;
+      });
+    },
+
+    importexcel() {
+      if (!this.checkTableData()) {
+        return;
+      }
+
+      $("#inexc").click();
+    },
+
+    histfromChange() {
+      this.compform.histto = this.compform.histfrom;
+    },
+    histtoChange() {
+      if (parseInt(this.histto) < parseInt(this.histfrom)) {
+        this.$message.error("开始日期大于结束日期，系统自动校正日期！");
+        this.compform.histfrom = this.compform.histto;
+      }
+    },
+
+    checkTableData() {
+      console.log(this.tableData.length);
+      if (this.tableData.length <= 0) {
+        this.$message({
+          type: "error",
+          message: "没有数据在列表中，如果有权限，请先通过点击查询按钮来确定！",
+          duration: 4000,
+        });
+        return false;
+      }
+      return true;
+    },
+
+    exportClick() {
+      if (!this.checkTableData()) {
+        return;
+      }
+
+      this.dialogFormImpVisible = true;
+      this.disimpbtn = false;
+
+      this.getPrhistPeriod();
+    },
+
+    getPrhistPeriod() {
+      if (this.prhistPeriodData.length == 0) {
+        this.$nextTick(() => {
+          AX("post", `prhist/getperiod/${this.prinfo.prcalgrp}`).then((res) => {
+            if (res) {
+              this.prhistPeriodData = res.data;
+            }
+          });
+        });
+      }
+    },
+
+    /**
+     *
+     * @param {*} curr
+     * 0:是导出一个导入模版
+     * 1：是导出当前
+     * 2：导出历史
+     */
+
+    exportexcel(curr = 1) {
+      this.disimpbtn = true;
+      const date = new Date();
+      const timestamp = date.getTime();
+      const calfrom = this.histfrom;
+      const calto = this.histto;
+
+      if ((!calfrom || !calto) && curr == 2) {
+        this.$message({
+          type: "error",
+          message: "✘历史导出需要选择日期区间！",
+          duration: 4000,
+        });
+        return;
+      }
+
+      let url = `prstaff/exportpr/${this.prinfo.prcalgrp}`;
+      let xlsname = `exportXLS_${timestamp}.xlsx`;
+
+      //2
+      if (curr == 2) {
+        url = `prstaff/exporthistpr/${this.prinfo.prcalgrp}`;
+        url += `?calfrom=${calfrom}&calto=${calto}`;
+        xlsname = `exportXLS_${calfrom}_${calto}_${timestamp}.xlsx`;
+      }
+
+      AX("get", url).then((res) => {
+        if (res) {
+          //0的前提是先把参数为1的导出来，然后再过滤项目和数据。
+          //项目为只能导入的，其实就是手工类型的，数据可以保留，也可全部清零
+          // console.log("---------", this.pritems_ids_0);
+          let wsname = "export page 1st";
+          if (curr == 0) {
+            res.data.forEach((el) => {
+              Object.keys(el).forEach((k) => {
+                if (!this.pritems_ids_0.includes(k)) {
+                  //保留EMID,CNAME
+                  if (!["emid", "cname"].includes(k.toLowerCase().trim())) {
+                    delete el[k];
+                  }
+                }
+              });
+            });
+            wsname = "export pr template page 1st";
+          }
+
+          let WorkSheet = XLSX.utils.json_to_sheet(res.data);
+          let WorkBook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(WorkBook, WorkSheet, wsname);
+          XLSX.writeFile(WorkBook, `${xlsname}`);
+          this.dialogFormImpVisible = false;
+        }
+      });
+
+      // console.log(XLSX.utils, WorkSheet);
+    },
+    exportcompexcel(data) {
+      this.disimpbtn = true;
+      const date = new Date();
+      const timestamp = date.getTime();
+
+      let xlsname = `exportXLScomp_${timestamp}.xlsx`;
+
+      let WorkSheet = XLSX.utils.json_to_sheet(data);
+      let WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(
+        WorkBook,
+        WorkSheet,
+        "specic export page 1st"
+      );
+      XLSX.writeFile(WorkBook, `${xlsname}`);
+    },
+    fileonchange(file) {
+      const MAX_FILE_SIZE = 4 * 1024 * 1024;
+      this.error = true;
+
+      const jsonData1 = [];
+      // 2.如果没有选中文件则取消
+      if (!file.target.files) {
+        return;
+      }
+      //3.获得选择的文件对象
+      var f = file.target.files[0];
+
+      if (f.size > MAX_FILE_SIZE) {
+        this.$message.error("文件限制限制为4M内,改文件打过4M.");
+        return;
+      }
+
+      //4.初始化新的文件读取对象，浏览器自带，不用导入
+      var reader = new FileReader();
+      //5.绑定FileReader对象读取文件对象时的触发方法
+      reader.onload = (e) => {
+        //7.获取文件二进制数据流
+        let data = e.currentTarget.result;
+        //8.利用XLSX解析二进制文件为xlsx对象
+        const workbook = XLSX.read(data, { type: "binary", codepage: 65001 });
+        //9.利用XLSX把wb第一个sheet转换成JSON对象
+        //wb.SheetNames[0]是获取Sheets中第一个Sheet的名字
+        const sheetName = workbook.SheetNames[0];
+        //wb.Sheets[Sheet名]获取第一个Sheet的数据
+        const sheet = workbook.Sheets[sheetName];
+
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+        //----------------------------
+        // console.log("excel", sheetName);
+        //10.在终端输出查看结果
+        // console.log(jsonData);
+        //----------------
+
+        // console.log(pritems_ids_0);
+        //这里整理数据，把没有emid的所有值删除。
+
+        let ishas = false;
+        jsonData.map((item) => {
+          if (item.emid && item.emid + "".trim().length > 0) {
+            const obj = {};
+
+            Object.keys(item).forEach((k) => {
+              // console.log(pritems_ids_0, k, pritems_ids_0.includes(k));
+              if (pritems_ids_0.includes(k)) {
+                for (let el of this.pritemData) {
+                  if (el.prname == k) {
+                    obj[el.prid] = chkMoney(item[k]) ? item[k] : 0;
+                    ishas = true;
+                    break;
+                  }
+                }
+              }
+            });
+
+            if (ishas) {
+              obj.emid = item.emid;
+              jsonData1.push(obj);
+            }
+          }
+        });
+
+        // console.log(jsonData, jsonData1);
+        //-------------------------------------------
+        if (jsonData1.length > 0) {
+          this.error = false;
+        }
+        // console.log("errorroror", this.error);
+        if (this.error) {
+          this.$message({
+            type: "error",
+            message: `✘ 导入文件中必须包含 [emid,${pritems_ids_0.join(
+              ","
+            )} ] 之一 !，并且不能为空！`,
+            duration: 4000,
+          });
+        } else {
+          this.$confirm(
+            "导入将依据系统中存在的人员工号进行数据更新,而且不可逆, 是否继续?",
+            "提示",
+            {
+              confirmButtonText: "我明白风险，继续导入",
+              cancelButtonText: "我先静静",
+              type: "warning",
+            }
+          )
+            .then(() => {
+              AX("post", "prstaff/importpr", jsonData1).then((res) => {
+                if (res) {
+                }
+              });
+            })
+            .catch(() => {
+              this.$message({
+                type: "info",
+                message: "已取消导入",
+              });
+            });
+        }
+      };
+      //6.使用reader对象以二进制读取文件对象f，
+      reader.readAsBinaryString(f);
+      //必须有这句，否则第二次没法子弄。
+      file.target.value = "";
+    },
     cmd_tohist() {
+      if (!this.checkTableData()) {
+        return;
+      }
+
+      const data = {};
+      data.rid = this.userstore.getUser().data[0].usrgrpid;
+      data.comid = this.userstore.getUser().data[0].comid;
+      data.tele = this.userstore.getUser().data[0].tele;
+      data.fromdate = this.prinfo.fromdate;
+      data.todate = this.prinfo.todate;
+      data.period = this.prinfo.period;
+      data.prcalgrp = this.prinfo.prcalgrp;
+
       this.$confirm(
-        "此操作将把当前薪资转化为历史数据，并清零。 是否继续?",
+        "此操作为过账，将把当前薪资数据转化为历史数据，并清零项目。 是否继续?",
         "重要信息",
         {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
+          confirmButtonText: "当前月度薪资已结清，请继续过账。",
+          cancelButtonText: "容朕再思量下",
           type: "warning",
         }
       )
-        .then(() => {
-          AX("get", "/prtohist").then((res) => {
-            if (res) {
-              //console.log(res);
-              AX("get", "/getprperiod")
-                .then((res) => {
-                  this.prinfo = res.data;
-                })
-                .catch((e) => console.log(e.message));
+        .then(async () => {
+          if (!this.canRun) {
+            return;
+          }
+          this.canRun = false;
 
-              this.listMain();
+          await AX("post", "prstaff/prtohist", data).then((res) => {
+            if (res) {
+              setTimeout(() => {
+                this.canRun = true;
+              }, 5000);
+              if (res.code == 200) {
+                // this.getdic();
+
+                setTimeout(() => {
+                  this.canRun = true;
+                  this.listMain();
+                }, 2000);
+              }
+            } else {
+              setTimeout(() => {
+                this.canRun = true;
+              }, 5000);
             }
           });
         })
@@ -1271,30 +2122,43 @@ export default {
     },
 
     funsReg(str) {
+      let rid = this.userstore.getUser().data[0].usrgrpid;
+      let comid = this.userstore.getUser().data[0].comid;
+      rid = rid.replace(/-/g, "_");
+      comid = comid.replace(/-/g, "_");
+      //-----------
       let newstr = str.replace(/\bround\b/gim, "Math.round");
       newstr = newstr.replace(/\bceil\b/gim, "Math.ceil");
       newstr = newstr.replace(/\bfloor\b/gim, "Math.floor");
       newstr = newstr.replace(/\babs\b/gim, "Math.abs");
       newstr = newstr.replace(/\btrunc\b/gim, "Math.trunc");
-      newstr = newstr.replace(/\b:fromdate\b/gim, "'2024-01-01'");
-      newstr = newstr.replace(/\b:todate\b/gim, "'2024-01-31'");
-      newstr = newstr.replace(/\b':calfromdate'\b/gim, "2024-01-01");
-      newstr = newstr.replace(/\b':caltodate'\b/gim, "2024-01-31");
+      newstr = newstr.replace(/\b:fromdate\b/gim, `'${this.prinfo.fromdate}'`);
+      newstr = newstr.replace(/\b:todate\b/gim, `'${this.prinfo.todate}'`);
+      newstr = newstr.replace(
+        /\b':calfromdate'\b/gim,
+        `${this.prinfo.fromdate}`
+      );
+      newstr = newstr.replace(/\b':caltodate'\b/gim, `${this.prinfo.todate}`);
+      newstr = newstr.replace(/\b':rid'\b/gim, rid);
+      newstr = newstr.replace(/\b':comid'\b/gim, comid);
       return newstr;
     },
 
+    //实施计算中只计算计算类项目，另外累计和连接项目不计算，
+    //所以在计算项目中不应该包括非数字类型或者连接类型的写法。切记。
     async calulate_realtime() {
       const reg = /[sS]{1}\d{2,3}/gim;
       for (let el of this.pritemData) {
         // console.log(el.prid, el.prtype, el.sort);
         let val = 0;
-        //1：这里只处理计算项目
+        //1：这里只处理计算项目,所以在计算项目中不能直接出现日期的。比如   ":todate"
         if (el.prtype == 1) {
           //将公式通过s表示为数组
           let pts = el.prfur.match(reg);
           if (pts) {
             let furstr = el.prfur;
             furstr = this.funsReg(furstr);
+            console.log("--", furstr);
 
             for (let it of pts) {
               val = this.form[it];
@@ -1322,35 +2186,48 @@ export default {
      */
     async cmd_calculate(sysid = "-1") {
       // console.log(this.tableData.length);
-      if (!this.tableData || this.tableData.length == 0) {
-        await this.listMain();
-      }
-      if (this.tableData.length < 1) {
-        this.$message.error("请选择需要计算员工的帐套和员工类型！");
+      if (!this.checkTableData()) {
         return;
       }
 
       this.loadingContent =
-        "薪资数据正在被小的们玩命计算中，请主公稍加休息，耐心等待～";
+        "薪资数据正在玩命计算中，请主公稍加休息，耐心等待～";
       this.loadingBackground = "rgba(0, 0, 0, 0.8)";
       this.loading = true;
 
-      //------------------------------------------------------------
+      //--------------------------------------listmain----------------------
       // 计算实时工资
       //------------------------------------------------------------
       // 计算实时工资，这里是直接计算链接和历史合计的，不应该再这个地方，
       //他应该再实时计算之前操作，可以称为统计数据。
+      let block = {};
+      block.rid = this.userstore.getUser().data[0].usrgrpid;
+      block.comid = this.userstore.getUser().data[0].comid;
+      block.fromdate = this.prinfo.fromdate;
+      block.todate = this.prinfo.todate;
+      block.period = this.prinfo.period;
 
-      AX("get", `pritem/dolinkitems/${this.prinfo.prcalgrp}`)
-        .then((e) => {
-          console.log(e);
-        })
-        .then(() => {
-          //暂时停用，为了调试，正式版中必须启用
-          this.listMain();
-          // //
-          this.loading = false;
-        });
+      if (!block.rid || !block.comid) {
+        this.$message.error("请重新登录！");
+        return;
+      }
+      if (this.prinfo.prcalgrp) {
+        this.$message.error("没有有效的薪资账套，或没有权限进行该操作！");
+        return;
+      }
+
+      block = encodeURI(JSON.stringify(block));
+
+      AX(
+        "get",
+        `pritem/dolinkitems/${this.prinfo.prcalgrp}?block=${block}`
+      ).then((e) => {
+        // console.log("-------------", e);
+        //暂时停用，为了调试，正式版中必须启用
+        this.listMain();
+        // //
+        this.loading = false;
+      });
     },
     /**************************************************************** */
     async calculateforsysid() {
@@ -1367,6 +2244,49 @@ export default {
       // }
 
       // return done;
+    },
+
+    cmd_batchupt() {
+      if (!this.checkTableData()) {
+        return;
+      }
+      this.dialogBatchUptVisible = true;
+    },
+    batchUpdate() {
+      console.log(this.batchform);
+      if (
+        !this.batchform.pid ||
+        !this.batchform.symbol ||
+        !this.batchform.val
+      ) {
+        this.$message.error("请填写完整！");
+        return;
+      }
+
+      const isnumber = /^(0|0.00|0\.\d{1,2}|\d+|\d+\.\d{1,2})$/.test(
+        this.batchform.val
+      );
+      if (!isnumber) {
+        this.$message.error("值必须是数字或者0");
+        return;
+      }
+
+      this.batchform.rid = this.userstore.getUser().data[0].usrgrpid;
+      this.batchform.prcalgrp = this.prinfo.prcalgrp;
+
+      console.log(this.batchform);
+
+      if (!this.batchform.rid || !this.batchform.prcalgrp) {
+        this.$message.error("权限异常，请重新登录");
+        return;
+      }
+
+      AX("post", "pritem/batch", this.batchform).then((res) => {
+        if (res) {
+          this.dialogBatchUptVisible = false;
+          this.listMain();
+        }
+      });
     },
 
     pritemChange(val) {
@@ -1427,7 +2347,7 @@ export default {
         }
       )
         .then(() => {
-          AX("patch", "/prinfo/" + row.id, { if_stop: if_stop }).then((res) => {
+          AX("patch", "prinfo/" + row.id, { if_stop: if_stop }).then((res) => {
             if (res) {
               this.listMain();
             }
@@ -1444,15 +2364,26 @@ export default {
     saveForm() {
       let data = [];
 
+      this.addbutdisabled = true;
+
       this.addvalue.forEach((ele) => {
-        data.push({ sysid: ele, accountgrp: this.prinfo.prcalgrp });
+        data.push({ sysid: ele, calgrp: this.prinfo.prcalgrp });
       });
 
+      if (data.length > 11) {
+        this.$message({
+          type: "error",
+          message: "一次最多只能保存10条数据！",
+        });
+        this.loading = false;
+        return false;
+      }
       AX("post", "prstaff/addnewstaff", data).then((res) => {
         if (res) {
           this.dialogAddVisible = false;
           this.addvalue = [];
           this.listMain();
+          this.addbutdisabled = false;
         }
       });
     },
@@ -1483,11 +2414,13 @@ export default {
         updateitem[item.prid] = this.form[item.prid];
       }
 
-      AX("patch", "prstaff/" + this.form.id, updateitem).then(() => {
-        done = true;
-        this.listMain();
-        this.dialogFormVisible = false;
-      });
+      AX("patch", "prstaff/" + this.form.id, updateitehiPrintPluginm).then(
+        () => {
+          done = true;
+          this.listMain();
+          this.dialogFormVisible = false;
+        }
+      );
       return done;
     },
 
@@ -1504,9 +2437,11 @@ export default {
       this.hrnewData = [];
       this.loading = true;
 
-      AX("get", "prstaff/hrnewstaff")
+      const rid = this.userstore.getUser().data[0].usrgrpid;
+
+      AX("get", `prstaff/hrnewstaff/${rid}`)
         .then((res) => {
-          console.log(res);
+          // console.log(res);
           if (res && res.data.length > 0) {
             res.data.forEach((ele) => {
               let hr = {};
@@ -1575,10 +2510,12 @@ export default {
 
     getdic(type = "hr") {
       this.loading = true;
+      this.optsData.push(...opeartorSymbol);
 
       this.prinfo.period = this.userstore.getperiod().period;
       this.prinfo.fromdate = this.userstore.getperiod().sdate;
       this.prinfo.todate = this.userstore.getperiod().edate;
+      this.prhistPeriodData = [];
 
       if (type == "hr") {
         this.dichrgradeData = this.dicstore.getDic("hrgrade");
@@ -1597,19 +2534,25 @@ export default {
         //   })
         //   .catch((e) => console.log(e.message));
         this.dichrstatusData = this.dicstore.getDic("hrstatus");
+
+        this.diccusrepData = this.dicstore.getDic("cusrep");
+
+        this.diccusrepData = this.diccusrepData.filter((el) => {
+          if (el.type == "pr") {
+            return el;
+          }
+        });
+
         // AX("get", "/dicm/hrstatus")
+
         //   .then((res) => {
         //     this.dichrstatusData = res.data;
         //   })
         //   .catch((e) => console.log(e.message));
+        this.deptData = this.deptstore.deptData.data;
         this.dpData = this.deptstore.deptposData.data;
         this.flattenTree(this.dpData);
-        // AX("get", "/dept")
-        //   .then((res) => {
-        //     this.dpData = res.data;
-        //     this.flattenTree(res.data);
-        //   })
-        //   .catch((e) => console.log(e.message));
+
         this.dichrpropsData = this.dicstore.getDic("hrporps");
         // AX("get", "/dicm/hrprops")
         //   .then((res) => {
@@ -1629,6 +2572,12 @@ export default {
         //   })
         //   .catch((e) => console.log(e.message));
         this.dicpraccountgrp = this.dicstore.getDic("pritemgcalgrp");
+        this.dicpraccountgrp = this.rightstore.getRightStore(
+          "pritemgcalgrp",
+          true
+        );
+
+        console.log("----------------", this.dicpraccountgrp);
         this.prinfo.prcalgrp = this.dicpraccountgrp[0].itemid;
         // AX("get", "/dicm/pritemgcalgrp")
         //   .then((res) => {
@@ -1667,11 +2616,10 @@ export default {
     flattenTree(treedata) {
       for (let item of treedata) {
         let node = {};
-        node.dpid = item.dpid;
-        node.dpname = item.dpname;
+        node.dpid = item.deptid;
+        node.dpname = item.deptname;
         node.fid = item.fid;
-        node.is_pos = item.is_pos;
-        node.posgrade = item.posgrade;
+        node.is_pos = item.deptlevel;
 
         this.dpList.push(node);
         if (item.children) {
@@ -1730,6 +2678,7 @@ export default {
       let block = {};
       this.pritemData.splice(0, this.pritemData.length);
       this.pritemDataShow.splice(0, this.pritemDataShow.length);
+
       //  let api = ''
       if (this.deptChecked.length < 1) {
         this.$message.error("请选择需要查询的部门！");
@@ -1740,6 +2689,7 @@ export default {
         return;
       }
       block.accgrp = this.prinfo.prcalgrp;
+      block.rid = this.userstore.getUser().data[0].usrgrpid;
       await AX(
         "get",
         `pritem/find?page=1&pagesize=400&block=${encodeURI(
@@ -1748,11 +2698,33 @@ export default {
       )
         .then((res) => {
           this.pritemData = res.data;
-          this.pritemData.forEach((el) => {
-            if (el.is_show == 1) {
-              this.pritemDataShow.push(el);
-            }
-          });
+
+          //--获取pritems的字段，判断是否有该数据，如果没有就不更新。
+          //就是检查数据的完整性
+
+          if (
+            this.pritems_ids_0.length == 0 ||
+            this.pritems_ids_not0.length == 0
+          ) {
+            this.pritemData.map((el) => {
+              if (el.prtype == "0") {
+                this.pritems_ids_0.push(el.prname);
+              } else {
+                this.pritems_ids_not0.push(el.prname);
+              }
+            });
+          }
+
+          if (this.pritemData0.length == 0) {
+            this.pritemData.forEach((el) => {
+              if (el.is_show == 1) {
+                this.pritemDataShow.push(el);
+              }
+              if (el.prtype == "0") {
+                this.pritemData0.push(el);
+              }
+            });
+          }
         })
         .catch((e) => console.log(e.message));
       // console.log(this.deptChecked)
@@ -1777,6 +2749,8 @@ export default {
       block = encodeURI(JSON.stringify(block));
 
       // console.log('blockencodeURI', block.length)
+
+      this.tableData = [];
 
       AX(
         "get",
@@ -1818,6 +2792,16 @@ export default {
 };
 </script>
 <style scoped>
+.example-showcase .el-dropdown + .el-dropdown {
+  margin-left: 15px;
+}
+.example-showcase .el-dropdown-link {
+  cursor: pointer;
+  color: var(--el-color-primary);
+  display: flex;
+  align-items: center;
+}
+
 .eltransfer >>> .el-transfer-panel__item {
   font-size: 12px;
 }

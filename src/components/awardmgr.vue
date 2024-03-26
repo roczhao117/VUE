@@ -10,6 +10,14 @@
         v-on:keydown.enter="listMain()"
         style="width: 200px; margin-right: 20px"
       ></el-input>
+      <el-tooltip content="打钩为查询开始日期，否则为到期日期" placement="top">
+        <el-checkbox
+          v-model="searchform.isbegin"
+          label="奖惩日？"
+          :true-label="1"
+          :false-label="0"
+        ></el-checkbox
+      ></el-tooltip>
       <el-date-picker
         v-model="searchform.fromdate"
         type="date"
@@ -131,13 +139,14 @@
 <script>
 import { AX } from "../utils/api";
 import { ref } from "vue";
-import moment from "moment";
-import { useDicStore } from "../store/index";
+import * as moment from "moment";
+import { useDicStore, useUserStore } from "../store/index";
 
 export default {
   setup() {
     const dicstore = useDicStore();
-    return { dicstore };
+    const userstore = useUserStore();
+    return { dicstore, userstore };
   },
   props: {
     // fsysid: {
@@ -189,6 +198,7 @@ export default {
         fromdate: moment().format("YYYY-MM-DD"),
         todate: moment().format("YYYY-MM-DD"),
         searchinput: ref(""),
+        isbegin: 1,
       },
     };
   },
@@ -208,19 +218,12 @@ export default {
     },
 
     getdic() {
-      //   AX("get", "/dicm/aptype").then((res) => {
-      //     this.aptypeData = res.data;
-      //   }),
-      //     AX("get", "/dicm/apitem").then((res) => {
-      //       this.apitemData = res.data;
-      //     }),
-      //     AX("get", "/dicm/apmode").then((res) => {
-      //       this.apmodeData = res.data;
-      //     });
-
       this.aptypeData = this.dicstore.getDic("aptype");
       this.apitemData = this.dicstore.getDic("apitem");
       this.apmodeData = this.dicstore.getDic("apmode");
+
+      this.searchform.fromdate = this.userstore.getperiod("kq").sdate;
+      this.searchform.todate = this.userstore.getperiod("kq").edate;
     },
 
     listMain() {
@@ -240,8 +243,10 @@ export default {
       paramsBlock.fromdate = fromdate;
       paramsBlock.todate = todate;
 
+      paramsBlock.rid = this.userstore.getUser().data[0].usrgrpid;
+      paramsBlock.isbegin = this.searchform.isbegin;
+
       paramsBlock = encodeURI(JSON.stringify(paramsBlock));
-      // console.log(paramsBlock);
 
       AX(
         "get",
@@ -254,6 +259,7 @@ export default {
           paramsBlock
       ).then((res) => {
         this.formData.splice(0, this.formData.length);
+        this.counts = 0;
         if (res && res.total > 0) {
           this.formData = res.data;
           this.counts = res.total;

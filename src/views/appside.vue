@@ -83,16 +83,21 @@ export default {
         this.dicstore.add2DicStore("-1", e.data);
       }
     });
-
-    AX("get", `dept?hookpos=1&user=${udatastr}`).then((e) => {
+    //----------------------------------------------
+    AX("get", `dept?hookpos=0&user=${udatastr}`).then((e) => {
       if (e && e.data) {
-        // console.warn("dddddddddddddddddddd", e);
-        this.deptposstore.add2DeptPosStore("-1", e.data);
+        this.deptposstore.add2DeptStore("-1", e.data);
       }
     });
 
+    AX("get", `dept?hookpos=1&user=${udatastr}`).then((e) => {
+      if (e && e.data) {
+        this.deptposstore.add2DeptPosStore("-1", e.data);
+      }
+    });
+    //------------------------------------------
     AX("get", `roleright/lst/${rid}/-1`).then((e) => {
-      // console.log(e.data);
+      // console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$", e.data, rid);
       if (e && e.data) {
         this.rightstore.add2RightStore(e.data);
       }

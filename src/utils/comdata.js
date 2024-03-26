@@ -27,11 +27,17 @@ export const pritemType = [
   { itemid: "0", itemname: "手工" },
   { itemid: "1", itemname: "计算" },
   { itemid: "2", itemname: "链接" },
-  { itemid: "3", itemname: "累计" },
+  //不需要累计，累计可以在链接中完成。
+  // { itemid: "3", itemname: "累计" },
 ];
 export const stopKQ = [
   { itemid: "0", itemname: "考勤人员" },
   { itemid: "1", itemname: "停考人员" },
+];
+
+export const trtype = [
+  { itemid: "0", itemname: "计划内" },
+  { itemid: "1", itemname: "非计划" },
 ];
 
 export const avOptions = [
@@ -45,13 +51,32 @@ export const alOptions = [
   { itemid: "1", itemname: "年假单" },
 ];
 
+export const timeStatus = [
+  { itemid: "0", itemname: "-" },
+  { itemid: "1", itemname: "迟到" },
+  { itemid: "2", itemname: "早退" },
+  { itemid: "3", itemname: "缺勤" },
+  { itemid: "4", itemname: "出勤" },
+  { itemid: "5", itemname: "请假" },
+];
+export const rightOpen = [
+  { itemid: "0", itemname: "只有我" },
+  { itemid: "1", itemname: "同角色人员" },
+  { itemid: "2", itemname: "所有人" },
+];
+export const opeartorSymbol = [{ itemid: "=", itemname: "=" }];
+
 export const chkMoney = (val) => {
   if (!val) {
     val = 0.0;
   }
   const str = val;
-
   const regex = /^[-+]?\d*\.?\d+$/;
+  return regex.test(str);
+};
 
+export const chkName = (val) => {
+  const str = val;
+  const regex = /^[a-zA-Z0-9\u4e00-\u9fa5_-]{2,50}$/;
   return regex.test(str);
 };

@@ -461,16 +461,22 @@
 <script>
 import { AX } from "../utils/api";
 import { ref } from "vue";
-import moment from "moment";
-import { useDeptPosStore, useDicStore, useUserStore } from "../store/index";
+import * as moment from "moment";
+import {
+  useDeptPosStore,
+  useDicStore,
+  useUserStore,
+  useRightStore,
+} from "../store/index";
 import { pritemType } from "../utils/comdata";
 export default {
   setup() {
     const deptstore = useDeptPosStore();
     const dicstore = useDicStore();
     const userstore = useUserStore();
+    const rightstore = useRightStore();
 
-    return { deptstore, dicstore, userstore };
+    return { deptstore, dicstore, userstore, rightstore };
   },
   data() {
     return {
@@ -522,6 +528,7 @@ export default {
       cmppwd: "",
 
       dialogFormVisible: false,
+   
 
       neworedit: true,
 
@@ -668,13 +675,13 @@ export default {
       this.deptVisible = !this.deptVisible;
     },
     handleDelete(idx, row) {
-      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+      this.$confirm("此操作将永久删除该公式, 是否继续?", "提示", {
+        confirmButtonText: "我知道风险，请继续删除",
+        cancelButtonText: "容我再考虑下",
         type: "warning",
       })
         .then(() => {
-          AX("DELETE", "/hrinfo/" + row.id).then((res) => {
+          AX("DELETE", "pritem/" + row.id).then((res) => {
             if (res) {
               this.listMain();
             }
@@ -725,10 +732,10 @@ export default {
           console.log(
             this.pritemform.prtype,
             this.pritemform.prfur,
-            /\dcase|if|else|when|end\d/gim.test(this.pritemform.prfur)
+            /\b(case|if|else|when|end)\b/im.test(this.pritemform.prfur)
           );
           if (this.pritemform.prtype == "2") {
-            const reg = /\bcase|if|else|when|end\b/gim;
+            const reg = /\b(case|if|else|when|end)\b/im;
             const casebl = reg.test(this.pritemform.prfur);
             console.log(casebl);
             if (casebl) {
@@ -848,6 +855,10 @@ export default {
         this.dicpritemgrp = this.dicstore.getDic("pritemgrp");
 
         this.dicpraccountgrp = this.dicstore.getDic("pritemgcalgrp");
+        this.dicpraccountgrp = this.rightstore.getRightStore(
+          "pritemgcalgrp",
+          true
+        );
 
         this.pritemtypeData.push(...pritemType);
 

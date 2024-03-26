@@ -7,31 +7,27 @@
 //        '^/':'/'
 //     }
 // }
-const path = require('path');
+const path = require("path");
 
 function resolve(dir) {
-    return path.join(__dirname, dir)
+  return path.join(__dirname, dir);
 }
-const {
-    defineConfig
-} = require('@vue/cli-service')
+const { defineConfig } = require("@vue/cli-service");
 module.exports = defineConfig({
-    transpileDependencies: true,
-    /*关闭语法检查*/
-    lintOnSave: false,
+  transpileDependencies: true,
+  /*关闭语法检查*/
+  lintOnSave: false,
 
-    chainWebpack: config => {
-        // 配置别名
-        config.resolve.alias.set('@', resolve('src'))
-    },
+  chainWebpack: (config) => {
+    // 配置别名
+    config.resolve.alias.set("@", resolve("src"));
+  },
 
-    publicPath: '/',
+  publicPath: "/",
 
-
-
-    devServer: {
-        host: 'localhost',
-        port: 1107,
-        //proxy:proxyObj,
-    }
-})
+  devServer: {
+    host: "localhost",
+    port: 1107,
+    //proxy:proxyObj,
+  },
+});

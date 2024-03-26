@@ -180,8 +180,12 @@
           :span="24"
           style="display: flex; justify-content: flex-end; padding-top: 15px"
         >
-          <el-button type="success" @click="init_form" v-if="is_new == false"
-            >清空</el-button
+          <el-button
+            type="success"
+            @click="init_form"
+            v-if="is_new == false"
+            icon="plus"
+            >新 建</el-button
           >
           <el-button type="primary" @click="saveform" v-if="is_new == false"
             >保 存</el-button
@@ -189,7 +193,7 @@
           <el-button type="success" @click="saveform" v-if="is_new == true"
             >新 增</el-button
           >
-          <el-button @click="closeform">取 消</el-button>
+          <el-button @click="closeform">离 开</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -227,6 +231,7 @@ export default {
       formLabelWidth: 100,
 
       form: {
+        id: "",
         sysid: ref(""),
         type: "",
         fee: "0",
@@ -234,6 +239,7 @@ export default {
         todate: "",
         remark: "",
         isactive: 1,
+        sort: 101,
       },
       rules: {
         type: [{ required: true, message: "请选择 类型", trigger: "blur" }],

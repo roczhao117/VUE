@@ -159,14 +159,15 @@
 <script>
 import { AX } from "../utils/api";
 import { ref } from "vue";
-import moment from "moment";
-import { useDicStore, useDeptPosStore } from "../store/index";
+import * as moment from "moment";
+import { useDicStore, useDeptPosStore, useUserStore } from "../store/index";
 
 export default {
   setup() {
     const dicstore = useDicStore();
     const deptstore = useDeptPosStore();
-    return { dicstore, deptstore };
+    const userstore = useUserStore();
+    return { dicstore, deptstore, userstore };
   },
   props: {
     // fsysid: {
@@ -236,20 +237,6 @@ export default {
     },
 
     getdic() {
-      //   AX("get", "/dicm/hrgrade").then((res) => {
-      //     this.dichrgradeData = res.data;
-      //   });
-      //   AX("get", "/dicm/hrtype").then((res) => {
-      //     this.dichrtypeData = res.data;
-      //   });
-      //   AX("get", "/dept").then((res) => {
-      //     this.dpData = res.data;
-      //     this.flattenTree(res.data);
-      //   });
-      //   AX("get", "/dicm/transtype").then((res) => {
-      //     this.dictranstypeData = res.data;
-      //   });
-
       this.dichrgradeData = this.dicstore.getDic("hrgrade");
 
       this.dichrtypeData = this.dicstore.getDic("hrtype");
@@ -258,6 +245,9 @@ export default {
       this.flattenTree(this.dpData);
 
       this.dictranstypeData = this.dicstore.getDic("transtype");
+
+      this.searchform.fromdate = this.userstore.getperiod("kq").sdate;
+      this.searchform.todate = this.userstore.getperiod("kq").edate;
     },
 
     flattenTree(treedata) {
@@ -293,6 +283,7 @@ export default {
       paramsBlock.fromdate = fromdate;
       paramsBlock.todate = todate;
       paramsBlock.type = this.searchform.type;
+      paramsBlock.rid = this.userstore.getUser().data[0].usrgrpid;
 
       paramsBlock = encodeURI(JSON.stringify(paramsBlock));
 
@@ -307,6 +298,7 @@ export default {
           paramsBlock
       ).then((res) => {
         this.formData.splice(0, this.formData.length);
+        this.counts = 0;
         if (res && res.total > 0) {
           this.formData = res.data;
           this.counts = res.total;

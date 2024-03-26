@@ -195,10 +195,11 @@
           <el-button type="success" @click="saveform" v-if="is_new == true"
             >新 增</el-button
           >
-          <el-button @click="closeform">取 消</el-button>
+
           <el-button type="primary" @click="saveform" v-if="is_new == false"
             >保 存</el-button
           >
+          <el-button @click="closeform">离 开</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -233,6 +234,7 @@ export default {
       formLabelWidth: "100",
 
       form: {
+        id: "",
         sysid: ref(""),
         school: "",
         level: "",
@@ -240,7 +242,7 @@ export default {
         todate: "",
         remark: "",
         type: "",
-        sort: 100,
+        sort: 101,
         isactive: 1,
       },
       rules: {
