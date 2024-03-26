@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>报表测试</title>
+    </head>
+
+    <body>
+
+        <table class='data' border="0" cellpadding="0" cellspacing="0">
+
+
+        </table>
+        <div class="repfooter">
+
+            <div class="sign">
+                <span>xxx负责人:_____________________</span>
+                <span>xxx负责人:_____________________</span>
+                <span>xxx负责人:_____________________</span>
+            </div>
+            <div class="sign">
+                <span>xxx负责人:_____________________</span>
+                <span>xxx负责人:_____________________</span>
+                <span>xxx负责人:_____________________</span>
+            </div>
+
+        </div>
+
+    </body>
+
+
+    <script src="./reptest.js"></script>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script>
+        $(() => {
+            const table = [{
+                    emid: "1001",
+                    name: "赵丹丹",
+                    dept: "人力资源部",
+                    grade: "1",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4200.2567,
+                },
+                {
+                    emid: "1002",
+                    name: "刘小雷",
+                    dept: "财务部",
+                    grade: "1",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 3156.2567,
+                    salary: 5250.2567,
+                },
+                {
+                    emid: "1003",
+                    name: "马大大",
+                    dept: "人力资源部",
+                    grade: "1",
+                    sex: "女",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4100.2567,
+                },
+                {
+                    emid: "1004",
+                    name: "刘画山",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4250.2567,
+                },
+                {
+                    emid: "1005",
+                    name: "张思琴",
+                    dept: "人力资源部",
+                    grade: "1",
+                    sex: "女",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4300.2567,
+                },
+                {
+                    emid: "1006",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1007",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1008",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                }, {
+                    emid: "1009",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                }, {
+                    emid: "1010",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                }, {
+                    emid: "1011",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                }, {
+                    emid: "1012",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                }, {
+                    emid: "1013",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                }, {
+                    emid: "1014",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                }, {
+                    emid: "1015",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                }, {
+                    emid: "1016",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1017",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1018",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1019",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1020",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1021",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1022",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1023",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1024",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1025",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                }, {
+                    emid: "1023",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1024",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+                {
+                    emid: "1025",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                }, {
+                    emid: "1023",
+                    name: "楚世杰",
+                    dept: "财务部",
+                    grade: "0",
+                    sex: "男",
+                    comid: "上海陆家嘴瑞金酒店",
+                    奖金: 2156.2567,
+                    salary: 4350.2567,
+                },
+
+
+            ];
+            //显示的字段
+            const flds = ["rct", "emid", "name", "grade", "sex", "salary", "奖金"];
+            const fldprop = [{
+                    fld: "rct",
+                    descs: "#",
+                    width: "3%"
+                },
+                {
+                    fld: "emid",
+                    descs: "工号",
+                    width: "6%"
+                },
+
+                {
+                    fld: "grade",
+                    descs: "级别",
+                    width: "10%"
+                },
+                {
+                    fld: "name",
+                    descs: "姓名",
+                    width: "14%"
+                },
+
+                {
+                    fld: "sex",
+                    descs: "性别",
+                    width: "10%"
+                },
+
+            ];
+            // console.log('k1', fldprop);
+            //分组的字段
+            // const gFlds = ["comid", "dept", "grade", "sex"];
+            const gFlds = ["comid", "dept"];
+            //需要合计的字段
+            const sumFlds = ["salary", "奖金"];
+            //条件设置
+            const findflds = [{
+                'sex': '1',
+                'grade': ['1', '2']
+            }];
+
+            // console.log('k', fldprop[0]);
+            const ary = table.filter((el) => {
+                return (el.sex == '男' &&
+                    el.grade == '0' && ['1004', '1008'].includes(el.emid));
+
+            })
+
+            console.log(ary);
+            const html = drawRep(ary, flds, gFlds, sumFlds, {
+                fldprop,
+                // showGroup: true,
+                // showSum: true,
+                // showTotal: true,
+                // showGroupTotal: true,
+                // showSumTotal: true,
+            });
+
+
+
+            $("table.data").html(html);
+            $('.header').html('薪资明细报表');
+            $('.printdate').html('2024-01-01');
+            // $('.footer').html('页脚');/
+        });
+    </script>
+    <style type="text/css">
+        * {
+            font-family: SimSun, Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td,
+        th {
+            border: 1px solid #555555;
+            padding: 4px;
+        }
+
+
+
+        title {
+            text-align: center;
+            margin-left: 30mm;
+            width: 100%;
+        }
+
+
+
+        thead tr td {
+            border: 0;
+            text-align: center;
+        }
+
+        tfoot tr td {
+            border: 0;
+            text-align: right;
+        }
+
+
+        div.header {
+            font-weight: 700;
+        }
+
+        .nextpage {
+            page-break-after: always;
+        }
+
+        .repfooter {
+            width: 100%;
+
+        }
+
+        .sign {
+            margin-top: 60px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .header {
+            font-weight: 700;
+        }
+
+        .printdate {
+            float: right;
+            margin-top: -10px;
+        }
+
+
+
+        @media print {
+
+            @page {
+                size: landscape;
+                margin: 15mm 5mm 5mm 5mm;
+            }
+
+            @page :first {
+                margin-top: 20px;
+                /* 首页去除自定义页眉 */
+            }
+
+            @page :blank {
+                margin-top: 0;
+                page-break-after: always;
+                /* 空白页去除自定义页眉 */
+            }
+
+            .header,
+            .footer {
+                height: 20px
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tfoot {
+                display: table-footer-group;
+            }
+
+            table {
+                counter-reset: pg;
+            }
+
+            tfoot {
+                counter-increment: pg;
+
+            }
+
+            span.pgnum::after {
+                content: counter(pg);
+            }
+        }
+
+        table {
+            counter-reset: rc;
+        }
+
+        td.rct {
+            counter-increment: rc;
+        }
+
+        td.rct::after {
+            content: counter(rc);
+        }
+    </style>
+
+</html>
